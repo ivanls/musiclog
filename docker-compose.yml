@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: musiclog-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: musiclog
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - musiclog-data:/var/lib/postgresql/data
+
+volumes:
+  musiclog-data:
