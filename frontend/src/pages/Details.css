@@ -1,0 +1,92 @@
+/* Layout común */
+.artist-detail,
+.album-detail,
+.track-detail {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 48px;
+  margin: 30px;
+  background: linear-gradient(135deg, #252525, #121212);
+  border-radius: 16px;
+  color: #ffffff;
+}
+
+/* Imagen común */
+.artist-detail img,
+.album-detail img,
+.track-detail img {
+  width: 260px;
+  height: 260px;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* Imagen circular solo para artistas */
+.artist-detail img {
+  border-radius: 50%;
+}
+
+/* Títulos */
+.artist-detail h1,
+.album-detail h1,
+.track-detail h1 {
+  font-size: 48px;
+  margin: 0 0 24px;
+  color: #ffffff;
+}
+
+/* Información secundaria */
+.album-detail p,
+.track-detail p {
+  color: #b3b3b3;
+  margin: 10px 0;
+}
+
+/* Enlace a Spotify */
+.artist-detail a,
+.album-detail a,
+.track-detail a {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 12px 22px;
+  background: #1ed760;
+  color: #121212;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 24px;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.artist-detail a:hover,
+.album-detail a:hover,
+.track-detail a:hover {
+  background: #1fdf64;
+  transform: scale(1.04);
+}
+
+/* Diseño adaptable */
+@media (max-width: 600px) {
+  .artist-detail,
+  .album-detail,
+  .track-detail {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 24px;
+    margin: 16px;
+  }
+
+  .artist-detail img,
+  .album-detail img,
+  .track-detail img {
+    width: 180px;
+    height: 180px;
+  }
+
+  .artist-detail h1,
+  .album-detail h1,
+  .track-detail h1 {
+    font-size: 32px;
+  }
+}

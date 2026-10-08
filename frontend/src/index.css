@@ -109,3 +109,72 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+/* =========================
+   MusicLog
+   ========================= */
+
+.results-section {
+  margin: 30px;
+  text-align: left;
+}
+
+.results-section h2 {
+  margin-bottom: 15px;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+/* Cards */
+
+.artist-card,
+.album-card,
+.track-card {
+  background: #181818;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  padding: 15px;
+  min-width: 0;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.artist-card:hover,
+.album-card:hover,
+.track-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.artist-card img,
+.album-card img,
+.track-card img {
+  display: block;
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.artist-detail {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  padding: 40px;
+}
+
+.artist-detail img {
+  width: 250px;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.artist-detail h1 {
+  font-size: 48px;
+  margin-bottom: 20px;
+}

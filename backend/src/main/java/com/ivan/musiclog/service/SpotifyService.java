@@ -187,4 +187,122 @@ public class SpotifyService {
                 .path("spotify")
                 .asText(null);
     }
+
+    // Get Artist by ID
+    public SpotifyArtistResponse getArtistById(String id) {
+
+        String token = getAccessToken();
+
+        String response = spotifyWebClient
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/v1/artists/{id}")
+                        .build(id))
+                .headers(headers -> headers.setBearerAuth(token))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        try {
+            JsonNode json = objectMapper.readTree(response);
+
+            String artistId = json.get("id").asText();
+            String name = json.get("name").asText();
+            String imageUrl = getImageUrl(json.get("images"));
+            String spotifyUrl = getSpotifyUrl(json);
+
+            return new SpotifyArtistResponse(
+                    artistId,
+                    name,
+                    imageUrl,
+                    spotifyUrl
+            );
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener los datos del artista", e);
+        }
+    }
+
+    // Get Album by ID
+    // Get Album by ID
+    public SpotifyAlbumResponse getAlbumById(String id) {
+
+        String token = getAccessToken();
+
+        String response = spotifyWebClient
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/v1/albums/{id}")
+                        .build(id))
+                .headers(headers -> headers.setBearerAuth(token))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        try {
+            JsonNode json = objectMapper.readTree(response);
+
+            String albumId = json.get("id").asText();
+            String name = json.get("name").asText();
+            String artistName = json.path("artists").path(0).get("name").asText();
+            String imageUrl = getImageUrl(json.get("images"));
+            String spotifyUrl = getSpotifyUrl(json);
+
+            return new SpotifyAlbumResponse(
+                    albumId,
+                    name,
+                    artistName,
+                    imageUrl,
+                    spotifyUrl
+            );
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener los datos del álbum", e);
+        }
+    }
+
+    // Get Track by ID
+    // Get Track by ID
+    public SpotifyTrackResponse getTrackById(String id) {
+
+        String token = getAccessToken();
+
+        String response = spotifyWebClient
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/v1/tracks/{id}")
+                        .build(id))
+                .headers(headers -> headers.setBearerAuth(token))
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        try {
+            JsonNode json = objectMapper.readTree(response);
+
+            String trackId = json.get("id").asText();
+            String name = json.get("name").asText();
+            String artistName = json.path("artists").path(0).get("name").asText();
+            String albumName = json.path("album").path("name").asText();
+            Integer durationMs = json.get("duration_ms").asInt();
+            String imageUrl = getImageUrl(
+                    json.path("album").path("images")
+            );
+            String spotifyUrl = getSpotifyUrl(json);
+
+            return new SpotifyTrackResponse(
+                    trackId,
+                    name,
+                    artistName,
+                    albumName,
+                    durationMs,
+                    imageUrl,
+                    spotifyUrl
+            );
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener los datos de la canción", e);
+        }
+    }
+
 }

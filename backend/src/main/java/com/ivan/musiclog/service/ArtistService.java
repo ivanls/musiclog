@@ -18,4 +18,6 @@ public class ArtistService {
     public List<Artist> getAllArtists() {
         return artistRepository.findAll();
     }
+
+
 }
