@@ -18,6 +18,11 @@ public class AuthController {
         this.authService = authService;
     }
 
+    @GetMapping("/test")
+    public String test() {
+        return "Autenticado correctamente";
+    }
+
     @PostMapping("/register")
     public RegisterResponse registerUser(@Valid @RequestBody RegisterRequest request) {
         return authService.register(request);

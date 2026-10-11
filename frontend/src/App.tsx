@@ -4,6 +4,8 @@ import SearchBar from './components/SearchBar'
 import ArtistDetails from './pages/ArtistDetails'
 import AlbumDetails from './pages/AlbumDetails'
 import TrackDetails from './pages/TrackDetails'
+import Login from './pages/Login'
+import Register from './pages/Register'
 
 
 function App() {
@@ -25,6 +27,8 @@ function App() {
         <Route path="/artists/:id" element={<ArtistDetails />} />
         <Route path='/albums/:id' element={<AlbumDetails />} />
         <Route path='/tracks/:id' element={<TrackDetails />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
     </div>
   )

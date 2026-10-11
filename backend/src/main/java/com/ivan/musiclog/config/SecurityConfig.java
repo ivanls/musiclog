@@ -2,6 +2,7 @@ package com.ivan.musiclog.config;
 
 import com.ivan.musiclog.security.CustomUserDetailsService;
 import com.ivan.musiclog.security.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -54,6 +55,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.exceptionHandling(ex -> ex
+                .accessDeniedHandler((request, response, exception) -> {
+                    System.out.println("Acceso denegado a: " + request.getRequestURI());
+                    System.out.println("Motivo: " + exception.getMessage());
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN);
+                })
+        );
 
         http
                 .csrf(csrf -> csrf.disable())

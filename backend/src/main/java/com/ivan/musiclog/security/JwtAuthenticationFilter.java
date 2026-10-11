@@ -73,12 +73,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder
                             .getContext()
                             .setAuthentication(authentication);
+
                 }
             }
 
         } catch (JwtException |
                  IllegalArgumentException |
                  UsernameNotFoundException ex) {
+
 
             // Invalid JWT or user no longer exists
             // Continue without authenticating the user
