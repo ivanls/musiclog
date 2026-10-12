@@ -4,10 +4,7 @@ import com.ivan.musiclog.dto.CreateAlbumReviewRequest;
 import com.ivan.musiclog.entity.AlbumReview;
 import com.ivan.musiclog.service.AlbumReviewService;
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/reviews")
@@ -23,6 +20,12 @@ public class AlbumReviewController {
             @Valid @RequestBody CreateAlbumReviewRequest request) {
 
         return albumReviewService.createAlbumReview(request);
+    }
+
+    @PutMapping
+    public AlbumReview updateAlbumReview(
+            @Valid @RequestBody UpdateAlbumReview request) {
+        return albumReviewService.updateAlbumReview(request);
     }
 
 }
