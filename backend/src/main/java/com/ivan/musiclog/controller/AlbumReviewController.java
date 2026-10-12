@@ -1,6 +1,7 @@
 package com.ivan.musiclog.controller;
 
 import com.ivan.musiclog.dto.CreateAlbumReviewRequest;
+import com.ivan.musiclog.dto.UpdateAlbumReviewRequest;
 import com.ivan.musiclog.entity.AlbumReview;
 import com.ivan.musiclog.service.AlbumReviewService;
 import jakarta.validation.Valid;
@@ -22,10 +23,12 @@ public class AlbumReviewController {
         return albumReviewService.createAlbumReview(request);
     }
 
-    @PutMapping
+    @PutMapping("/{reviewId}")
     public AlbumReview updateAlbumReview(
-            @Valid @RequestBody UpdateAlbumReview request) {
-        return albumReviewService.updateAlbumReview(request);
+            @PathVariable Long reviewId,
+            @Valid @RequestBody UpdateAlbumReviewRequest request) {
+
+        return albumReviewService.updateAlbumReview(reviewId, request);
     }
 
 }

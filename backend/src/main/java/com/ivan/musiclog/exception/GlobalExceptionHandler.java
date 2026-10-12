@@ -40,4 +40,18 @@ public class GlobalExceptionHandler {
                 .body(ex.getMessage());
     }
 
+    @ExceptionHandler(AlbumReviewNotFoundException.class)
+    public ResponseEntity<?> handleNotFound (AlbumReviewNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ex.getMessage());
+    }
+
+    @ExceptionHandler(com.ivan.musiclog.exception.AccessDeniedException.class)
+    public ResponseEntity<?> handleDeniedAccess (AccessDeniedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(ex.getMessage());
+    }
+
  }
