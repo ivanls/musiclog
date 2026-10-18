@@ -5,6 +5,7 @@ import com.ivan.musiclog.security.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -75,6 +76,14 @@ public class SecurityConfig {
                                 "/auth/register",
                                 "/auth/login",
                                 "/api/spotify/**"
+                        ).permitAll()
+
+                        .requestMatchers(
+                                HttpMethod.GET, "/api/reviews/me")
+                        .authenticated()
+
+                        .requestMatchers(
+                                HttpMethod.GET, "/api/reviews/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

@@ -1,5 +1,6 @@
 package com.ivan.musiclog.service;
 
+import com.ivan.musiclog.dto.AlbumReviewResponse;
 import com.ivan.musiclog.dto.CreateAlbumReviewRequest;
 import com.ivan.musiclog.dto.UpdateAlbumReviewRequest;
 import com.ivan.musiclog.entity.AlbumReview;
@@ -13,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -71,6 +73,70 @@ public class AlbumReviewService {
         reviewToChange.setRating(request.getRating());
 
         return albumReviewRepository.save(reviewToChange);
+    }
+
+    public AlbumReviewResponse getReviewById(Long reviewId){
+        AlbumReview review = albumReviewRepository.findById(reviewId)
+                .orElseThrow(() -> new AlbumReviewNotFoundException("Review not found"));
+
+        return toResponse(review);
+    }
+
+    public List<AlbumReviewResponse> findBySpotifyAlbumId(String spotifyAlbumId) {
+        List<AlbumReview> albumReviewList =
+                albumReviewRepository.findBySpotifyAlbumId(spotifyAlbumId);
+
+        return albumReviewList.stream()
+                .map(review -> toResponse(review))
+                .toList();
+    }
+
+    public List<AlbumReviewResponse> getMyReviews(){
+
+        String contextName = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        User user = userRepository.findByUsername(contextName)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        List<AlbumReview> albumReviewList =
+                albumReviewRepository.findReviewsByUser_Id(user.getId());
+
+        return albumReviewList.stream()
+                .map(review -> toResponse(review))
+                .toList();
+    }
+
+    public void deleteAlbumReview(Long reviewId){
+
+        String contextName = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        User user = userRepository.findByUsername(contextName)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        AlbumReview review = albumReviewRepository.findById(reviewId)
+                .orElseThrow(() -> new AlbumReviewNotFoundException("Review not found"));
+
+        if(!review.getUser().getId().equals(user.getId())){
+            throw new AccessDeniedException("Access denied");
+        }
+
+        albumReviewRepository.deleteById(reviewId);
+    }
+
+    private AlbumReviewResponse toResponse(AlbumReview review) {
+        return new AlbumReviewResponse(
+                review.getId(),
+                review.getUser().getUsername(),
+                review.getSpotifyAlbumId(),
+                review.getRating(),
+                review.getReviewText(),
+                review.getCreatedAt(),
+                review.getUpdatedAt()
+        );
     }
 
 }

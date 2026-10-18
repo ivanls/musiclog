@@ -36,4 +36,5 @@ public class SpotifyController {
 
     @GetMapping("/tracks/{id}")
     public SpotifyTrackResponse getTrackById(@PathVariable String id) { return spotifyService.getTrackById(id); }
+
 }

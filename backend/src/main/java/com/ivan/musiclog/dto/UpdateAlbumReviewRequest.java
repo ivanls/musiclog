@@ -13,8 +13,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class UpdateAlbumReviewRequest {
 
-
-
     @NotNull
     @Min(1)
     @Max(10)
