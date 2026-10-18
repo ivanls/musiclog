@@ -21,7 +21,7 @@ public class AlbumReviewController {
     }
 
     @PostMapping
-    public AlbumReview createAlbumReview(
+    public AlbumReviewResponse createAlbumReview(
             @Valid @RequestBody CreateAlbumReviewRequest request) {
 
         return albumReviewService.createAlbumReview(request);

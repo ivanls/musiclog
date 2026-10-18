@@ -28,11 +28,12 @@ public class AlbumReviewService {
         this.userRepository = userRepository;
     }
 
-    public AlbumReview createAlbumReview(CreateAlbumReviewRequest review){
+    public AlbumReviewResponse createAlbumReview(CreateAlbumReviewRequest review){
 
         String contextName = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
+
         User user = userRepository.findByUsername(contextName)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         String albumId = review.getSpotifyAlbumId();
@@ -50,7 +51,9 @@ public class AlbumReviewService {
         request.setReviewText(albumReview);
         request.setRating(albumRating);
 
-        return albumReviewRepository.save(request);
+        AlbumReview requestSaved = albumReviewRepository.save(request);
+
+        return toResponse(requestSaved);
     }
 
     public AlbumReview updateAlbumReview(Long reviewId, UpdateAlbumReviewRequest request) {
