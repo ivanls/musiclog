@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "uk_review_user_album",
-                        columnNames = {"user_id", "spotify_album_id"}
+                        columnNames = {"user_id", "album_id"}
                 )
         }
 )
@@ -31,8 +31,9 @@ public class AlbumReview {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(name = "spotify_album_id", nullable = false)
-    private String spotifyAlbumId;
+    @ManyToOne
+    @JoinColumn(name = "album_id", nullable = false)
+    private Album album;
 
     @Column(nullable = false)
     private boolean listened = false;

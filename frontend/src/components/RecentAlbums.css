@@ -1,0 +1,70 @@
+.recent-albums {
+  padding: 24px 32px;
+}
+
+.recent-albums h2 {
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+}
+
+.recent-albums-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 24px;
+}
+
+.album-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px;
+  border-radius: 10px;
+  color: inherit;
+  text-decoration: none;
+  background: #181818;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.album-card:hover {
+  background: #282828;
+  transform: translateY(-3px);
+}
+
+.album-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #303030;
+}
+
+.album-card h3 {
+  margin: 4px 0 0;
+  font-size: 1rem;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.album-card p {
+  margin: 0;
+  color: #b3b3b3;
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .recent-albums {
+    padding: 20px 16px;
+  }
+
+  .recent-albums-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+}

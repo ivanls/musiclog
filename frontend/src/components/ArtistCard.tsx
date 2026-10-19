@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom'
 
 type Artist = {
@@ -14,7 +15,11 @@ type ArtistCardProps = {
 function ArtistCard({ artist }: ArtistCardProps) {
   return (
     <Link to={`/artists/${artist.id}`} className="artist-card">
-      <img src={artist.imageUrl ?? ''} alt={artist.name} />
+      <img
+        src={artist.imageUrl ?? ''}
+        alt={artist.name}
+        className="artist-card-image"
+      />
 
       <h3>{artist.name}</h3>
     </Link>

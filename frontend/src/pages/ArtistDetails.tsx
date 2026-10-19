@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import './Details.css'
@@ -39,30 +40,30 @@ function ArtistDetails() {
       }
     }
 
-    fetchArtist()
+    if (id) {
+      fetchArtist()
+    }
   }, [id])
 
-  if (loading) {
-    return <p>Cargando artista...</p>
-  }
-
-  if (error) {
-    return <p>{error}</p>
-  }
-
-  if (!artist) {
-    return <p>No se ha encontrado el artista.</p>
-  }
+  if (loading) return <p className="detail-message">Cargando artista...</p>
+  if (error) return <p className="detail-message">{error}</p>
+  if (!artist) return <p className="detail-message">No se ha encontrado el artista.</p>
 
   return (
-    <div className="artist-detail">
+    <main className="artist-detail">
       <img
         src={artist.imageUrl ?? ''}
         alt={artist.name}
       />
 
-      <div>
+      <div className="artist-detail-info">
+        <p className="detail-label">ARTISTA</p>
+
         <h1>{artist.name}</h1>
+
+        <p className="artist-detail-description">
+          Explora la música de {artist.name} en MusicLog.
+        </p>
 
         {artist.spotifyUrl && (
           <a
@@ -70,11 +71,11 @@ function ArtistDetails() {
             target="_blank"
             rel="noreferrer"
           >
-            Abrir en Spotify
+            Escuchar en Spotify ↗
           </a>
         )}
       </div>
-    </div>
+    </main>
   )
 }
 

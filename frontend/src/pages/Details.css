@@ -1,92 +1,214 @@
-/* Layout común */
+
+/* ===== Identidad visual de MusicLog ===== */
+
+:root {
+  --ml-paper: #f3efe6;
+  --ml-surface: #fffdf8;
+  --ml-ink: #242720;
+  --ml-muted: #77766d;
+  --ml-accent: #d75b38;
+  --ml-border: #ded7ca;
+}
+
+/* ===== Estructura común de los detalles ===== */
+
 .artist-detail,
 .album-detail,
 .track-detail {
-  display: flex;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 280px) minmax(0, 1fr);
   align-items: center;
-  gap: 32px;
-  padding: 48px;
-  margin: 30px;
-  background: linear-gradient(135deg, #252525, #121212);
-  border-radius: 16px;
-  color: #ffffff;
+  gap: 40px;
+
+  max-width: 1100px;
+  margin: 32px auto;
+  padding: 40px;
+
+  color: var(--ml-ink);
+  background: var(--ml-paper);
+  border: 1px solid var(--ml-border);
+  border-radius: 4px;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Imagen común */
-.artist-detail img,
-.album-detail img,
-.track-detail img {
-  width: 260px;
-  height: 260px;
+/* ===== Imágenes ===== */
+
+.artist-detail > img,
+.album-detail > img,
+.track-detail > img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  height: auto;
   object-fit: cover;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  border-radius: 3px;
+  box-shadow: 8px 8px 0 var(--ml-border);
 }
 
-/* Imagen circular solo para artistas */
-.artist-detail img {
+/* Los artistas mantienen el retrato circular */
+.artist-detail > img {
   border-radius: 50%;
 }
 
-/* Títulos */
+/* ===== Información ===== */
+
+.artist-detail-info,
+.album-detail > div,
+.track-detail > div {
+  min-width: 0;
+}
+
+.detail-label {
+  margin: 0 0 12px;
+  color: var(--ml-accent);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
 .artist-detail h1,
 .album-detail h1,
 .track-detail h1 {
-  font-size: 48px;
-  margin: 0 0 24px;
-  color: #ffffff;
+  margin: 0 0 20px;
+  color: var(--ml-ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(32px, 5vw, 54px);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -1.5px;
+  overflow-wrap: anywhere;
 }
 
-/* Información secundaria */
+.artist-detail p,
 .album-detail p,
 .track-detail p {
-  color: #b3b3b3;
-  margin: 10px 0;
+  margin: 8px 0;
+  color: var(--ml-muted);
+  font-size: 15px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
 }
 
-/* Enlace a Spotify */
+.artist-detail .artist-detail-description {
+  margin-top: 16px;
+}
+
+/* ===== Enlaces ===== */
+
 .artist-detail a,
 .album-detail a,
 .track-detail a {
   display: inline-block;
-  margin-top: 16px;
-  padding: 12px 22px;
-  background: #1ed760;
-  color: #121212;
+  margin-top: 20px;
+  padding: 11px 18px;
+
+  background: var(--ml-ink);
+  color: var(--ml-paper);
+  border: 1px solid var(--ml-ink);
+  border-radius: 3px;
+
+  font-size: 14px;
+  font-weight: 600;
   text-decoration: none;
-  font-weight: bold;
-  border-radius: 24px;
-  transition: background 0.2s, transform 0.2s;
+  transition: background 0.2s, border-color 0.2s;
 }
 
 .artist-detail a:hover,
 .album-detail a:hover,
 .track-detail a:hover {
-  background: #1fdf64;
-  transform: scale(1.04);
+  background: var(--ml-accent);
+  border-color: var(--ml-accent);
+  color: white;
 }
 
-/* Diseño adaptable */
-@media (max-width: 600px) {
+/* ===== Reseñas del álbum ===== */
+
+.album-reviews {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--ml-border);
+  padding-top: 28px;
+  margin-top: 12px;
+}
+
+.album-reviews h2 {
+  margin: 0 0 24px;
+  color: var(--ml-ink);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 34px;
+  letter-spacing: -0.8px;
+}
+
+.review-card {
+  margin-bottom: 16px;
+  padding: 22px 24px;
+  background: var(--ml-surface);
+  border: 1px solid var(--ml-border);
+  border-left: 4px solid var(--ml-accent);
+  border-radius: 3px;
+}
+
+.review-card h3 {
+  margin: 0 0 8px;
+  color: var(--ml-ink);
+  font-size: 16px;
+}
+
+.review-card p {
+  margin: 8px 0;
+  color: var(--ml-ink);
+  line-height: 1.7;
+}
+
+.review-card p:nth-of-type(1) {
+  font-weight: 600;
+}
+
+.review-card small {
+  display: block;
+  margin-top: 14px;
+  color: var(--ml-muted);
+  font-size: 12px;
+}
+
+/* ===== Estados de carga y error ===== */
+
+.detail-message {
+  max-width: 1100px;
+  margin: 32px auto;
+  padding: 0 24px;
+  color: var(--ml-ink);
+}
+
+/* ===== Diseño adaptable ===== */
+
+@media (max-width: 700px) {
   .artist-detail,
   .album-detail,
   .track-detail {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 24px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
     margin: 16px;
+    padding: 24px;
   }
 
-  .artist-detail img,
-  .album-detail img,
-  .track-detail img {
-    width: 180px;
-    height: 180px;
+  .artist-detail > img,
+  .album-detail > img,
+  .track-detail > img {
+    width: min(100%, 280px);
   }
 
   .artist-detail h1,
   .album-detail h1,
   .track-detail h1 {
-    font-size: 32px;
+    font-size: 36px;
+  }
+
+  .album-reviews {
+    grid-column: 1;
+  }
+
+  .review-card {
+    padding: 18px;
   }
 }

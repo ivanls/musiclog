@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import './Details.css'
@@ -10,11 +11,23 @@ type Album = {
   spotifyUrl: string | null
 }
 
+type AlbumReview = {
+  id: number
+  username: string
+  spotifyAlbumId: string
+  rating: number
+  reviewText: string | null
+  createdAt: string
+  updatedAt: string
+}
+
 function AlbumDetails() {
   const { id } = useParams()
 
   const [album, setAlbum] = useState<Album | null>(null)
+  const [albumReviews, setAlbumReviews] = useState<AlbumReview[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingReviews, setLoadingReviews] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -40,7 +53,31 @@ function AlbumDetails() {
       }
     }
 
-    fetchAlbum()
+    async function fetchReviews() {
+      setLoadingReviews(true)
+
+      try {
+        const response = await fetch(
+          `http://localhost:8081/api/reviews/album/${id}`
+        )
+
+        if (!response.ok) {
+          throw new Error('Error al obtener las reseñas')
+        }
+
+        const data: AlbumReview[] = await response.json()
+        setAlbumReviews(data)
+      } catch (error) {
+        console.error('No se han podido cargar las reseñas:', error)
+      } finally {
+        setLoadingReviews(false)
+      }
+    }
+
+    if (id) {
+      fetchAlbum()
+      fetchReviews()
+    }
   }, [id])
 
   if (loading) {
@@ -57,14 +94,11 @@ function AlbumDetails() {
 
   return (
     <div className="album-detail">
-      <img
-        src={album.imageUrl ?? ''}
-        alt={album.name}
-      />
+      <img src={album.imageUrl ?? ''} alt={album.name} />
 
       <div>
         <h1>{album.name}</h1>
-        <p>Artista: {album.artistName}</p>
+        <p className="detail-label">Artista: {album.artistName}</p>
 
         {album.spotifyUrl && (
           <a
@@ -76,6 +110,28 @@ function AlbumDetails() {
           </a>
         )}
       </div>
+
+      <section className="album-reviews">
+        <h2>Reseñas</h2>
+
+        {loadingReviews ? (
+          <p>Cargando reseñas...</p>
+        ) : albumReviews.length === 0 ? (
+          <p>Aún no hay reseñas para este álbum.</p>
+        ) : (
+          albumReviews.map((review) => (
+            <article key={review.id} className="review-card">
+              <h3>{review.username}</h3>
+              <p>Valoración: {review.rating}/10</p>
+              {review.reviewText && <p>{review.reviewText}</p>}
+              <small>
+                Publicada el{' '}
+                {new Date(review.createdAt).toLocaleDateString('es-ES')}
+              </small>
+            </article>
+          ))
+        )}
+      </section>
     </div>
   )
 }

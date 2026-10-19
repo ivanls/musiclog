@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import './Details.css'
@@ -12,9 +13,16 @@ type Track = {
   spotifyUrl: string | null
 }
 
+function formatDuration(durationMs: number): string {
+  const totalSeconds = Math.floor(durationMs / 1000)
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+
+  return `${minutes}:${String(seconds).padStart(2, '0')}`
+}
+
 function TrackDetails() {
   const { id } = useParams()
-
   const [track, setTrack] = useState<Track | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -42,33 +50,35 @@ function TrackDetails() {
       }
     }
 
-    fetchTrack()
+    if (id) {
+      fetchTrack()
+    }
   }, [id])
 
-  if (loading) {
-    return <p>Cargando canción...</p>
-  }
-
-  if (error) {
-    return <p>{error}</p>
-  }
-
-  if (!track) {
-    return <p>No se ha encontrado la canción.</p>
-  }
+  if (loading) return <p>Cargando canción...</p>
+  if (error) return <p>{error}</p>
+  if (!track) return <p>No se ha encontrado la canción.</p>
 
   return (
     <div className="track-detail">
-      <img
-        src={track.imageUrl ?? ''}
-        alt={track.name}
-      />
+      <img src={track.imageUrl ?? ''} alt={track.albumName} />
 
       <div>
+        <p className="detail-label">CANCIÓN</p>
+
         <h1>{track.name}</h1>
-        <p>Artista: {track.artistName}</p>
-        <p>Álbum: {track.albumName}</p>
-        <p>Duración: {track.durationMs} ms</p>
+
+        <p>
+          <strong>Artista:</strong> {track.artistName}
+        </p>
+
+        <p>
+          <strong>Álbum:</strong> {track.albumName}
+        </p>
+
+        <p>
+          <strong>Duración:</strong> {formatDuration(track.durationMs)}
+        </p>
 
         {track.spotifyUrl && (
           <a
@@ -76,7 +86,7 @@ function TrackDetails() {
             target="_blank"
             rel="noreferrer"
           >
-            Abrir en Spotify
+            Escuchar en Spotify
           </a>
         )}
       </div>
@@ -85,4 +95,3 @@ function TrackDetails() {
 }
 
 export default TrackDetails
-

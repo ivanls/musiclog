@@ -1,6 +1,7 @@
 import ArtistCard from "./ArtistCard"
 import AlbumCard from "./AlbumCard"
 import TrackCard from "./TrackCard"
+import './SearchResults.css'
 
 type SearchResultsProps = {
   artists: Artist[]

@@ -108,6 +108,11 @@ public class SpotifyService {
 
                 String imageUrl = getImageUrl(album.get("images"));
                 String spotifyUrl = getSpotifyUrl(album);
+                String artistId = album
+                        .get("artists")
+                        .path(0)
+                        .path("id")
+                        .asText();
 
                 SpotifyAlbumResponse albumResponse =
                         new SpotifyAlbumResponse(
@@ -115,7 +120,8 @@ public class SpotifyService {
                                 name,
                                 artistName,
                                 imageUrl,
-                                spotifyUrl
+                                spotifyUrl,
+                                artistId
                         );
 
                 albumResponses.add(albumResponse);
@@ -224,7 +230,6 @@ public class SpotifyService {
     }
 
     // Get Album by ID
-    // Get Album by ID
     public SpotifyAlbumResponse getAlbumById(String id) {
 
         String token = getAccessToken();
@@ -244,7 +249,8 @@ public class SpotifyService {
 
             String albumId = json.get("id").asText();
             String name = json.get("name").asText();
-            String artistName = json.path("artists").path(0).get("name").asText();
+            String artistName = json.path("artists").path(0).path("name").asText();
+            String artistId = json.path("artists").path(0).path("id").asText();
             String imageUrl = getImageUrl(json.get("images"));
             String spotifyUrl = getSpotifyUrl(json);
 
@@ -253,7 +259,8 @@ public class SpotifyService {
                     name,
                     artistName,
                     imageUrl,
-                    spotifyUrl
+                    spotifyUrl,
+                    artistId
             );
 
         } catch (Exception e) {

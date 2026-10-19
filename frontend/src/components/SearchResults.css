@@ -1,0 +1,127 @@
+
+.results-section {
+  margin: 48px auto;
+  max-width: 1200px;
+  padding: 0 32px;
+}
+
+.results-section h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -0.8px;
+  color: white;
+  margin: 0 0 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ml-border, #ded7ca);
+}
+
+/* Distribución de los resultados */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 28px 22px;
+  align-items: start;
+}
+
+/* Adaptación a pantallas pequeñas */
+@media (max-width: 650px) {
+  .results-section {
+    padding: 0 18px;
+    margin: 32px auto;
+  }
+
+  .results-section h2 {
+    font-size: 27px;
+  }
+
+  .results-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px 14px;
+  }
+}
+
+
+/* Base común de las tarjetas */
+.artist-card,
+.album-card,
+.track-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  color: var(--ml-ink, #242720);
+  text-decoration: none;
+  background: var(--ml-surface, #fffdf8);
+  border: 1px solid var(--ml-border, #ded7ca);
+  padding: 12px;
+  border-radius: 3px;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.artist-card:hover,
+.album-card:hover,
+.track-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 5px 5px 0 var(--ml-border, #ded7ca);
+}
+
+/* Portadas */
+.artist-card-image,
+.album-card img,
+.track-card-image {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+  background: var(--ml-border, #ded7ca);
+}
+
+/* Solo las imágenes de artistas son circulares */
+.artist-card-image {
+  border-radius: 50%;
+}
+
+/* Títulos */
+.artist-card h3,
+.album-card h3,
+.track-card h3 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 14px 0 6px;
+  overflow-wrap: anywhere;
+}
+
+/* Información secundaria */
+.album-card p,
+.track-card p {
+  color: var(--ml-muted, #77766d);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 3px 0;
+}
+
+.track-card .track-card-artist {
+  color: var(--ml-ink, #242720);
+  font-weight: 600;
+}
+
+.track-card .track-card-duration {
+  margin-top: 10px;
+  color: var(--ml-accent, #d75b38);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Evita que el contenido se desborde */
+.artist-card h3,
+.album-card h3,
+.track-card h3,
+.album-card p,
+.track-card p {
+  overflow-wrap: anywhere;
+}
+

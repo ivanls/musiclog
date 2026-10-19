@@ -14,6 +14,9 @@ public class Artist {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column (unique = true, nullable = false)
+    private String spotifyArtistId;
+
     @Column(nullable = false)
     private String name;
 

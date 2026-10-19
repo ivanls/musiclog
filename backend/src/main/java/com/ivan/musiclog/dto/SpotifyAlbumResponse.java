@@ -7,16 +7,18 @@ public class SpotifyAlbumResponse {
     private String artistName;
     private String imageUrl;
     private String spotifyUrl;
+    private String artistId;
 
     public SpotifyAlbumResponse() {
     }
 
-    public SpotifyAlbumResponse(String id, String name, String artistName, String imageUrl, String spotifyUrl) {
+    public SpotifyAlbumResponse(String id, String name, String artistName, String imageUrl, String spotifyUrl, String artistId) {
         this.id = id;
         this.name = name;
         this.artistName = artistName;
         this.imageUrl = imageUrl;
         this.spotifyUrl = spotifyUrl;
+        this.artistId = artistId;
     }
 
     public String getId() {
@@ -38,6 +40,8 @@ public class SpotifyAlbumResponse {
     public String getSpotifyUrl() {
         return spotifyUrl;
     }
+
+    public String getArtistId() { return artistId; }
 
 
 }
