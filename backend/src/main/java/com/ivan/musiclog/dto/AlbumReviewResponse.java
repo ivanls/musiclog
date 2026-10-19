@@ -1,3 +1,4 @@
+
 package com.ivan.musiclog.dto;
 
 import java.time.LocalDateTime;
@@ -7,6 +8,7 @@ public class AlbumReviewResponse {
     private Long id;
     private String username;
     private String spotifyAlbumId;
+    private boolean listened;
     private Integer rating;
     private String reviewText;
     private LocalDateTime createdAt;
@@ -15,10 +17,20 @@ public class AlbumReviewResponse {
     public AlbumReviewResponse() {
     }
 
-    public AlbumReviewResponse(Long id, String username, String spotifyAlbumId, Integer rating, String reviewText, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public AlbumReviewResponse(
+            Long id,
+            String username,
+            String spotifyAlbumId,
+            boolean listened,
+            Integer rating,
+            String reviewText,
+            LocalDateTime createdAt,
+            LocalDateTime updatedAt
+    ) {
         this.id = id;
         this.username = username;
         this.spotifyAlbumId = spotifyAlbumId;
+        this.listened = listened;
         this.rating = rating;
         this.reviewText = reviewText;
         this.createdAt = createdAt;
@@ -37,6 +49,10 @@ public class AlbumReviewResponse {
         return spotifyAlbumId;
     }
 
+    public boolean isListened() {
+        return listened;
+    }
+
     public Integer getRating() {
         return rating;
     }
@@ -52,5 +68,4 @@ public class AlbumReviewResponse {
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
-
 }

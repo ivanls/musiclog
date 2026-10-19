@@ -35,6 +35,9 @@ public class AlbumReview {
     private String spotifyAlbumId;
 
     @Column(nullable = false)
+    private boolean listened = false;
+
+    @Column
     private Integer rating;
 
     @Column(columnDefinition = "TEXT")

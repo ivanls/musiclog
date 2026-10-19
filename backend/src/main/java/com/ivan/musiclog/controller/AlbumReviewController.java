@@ -28,7 +28,7 @@ public class AlbumReviewController {
     }
 
     @PutMapping("/{reviewId}")
-    public AlbumReview updateAlbumReview(
+    public AlbumReviewResponse updateAlbumReview(
             @PathVariable Long reviewId,
             @Valid @RequestBody UpdateAlbumReviewRequest request) {
 
