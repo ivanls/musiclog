@@ -86,7 +86,6 @@ public class AlbumReviewService {
             Long reviewId,
             UpdateAlbumReviewRequest request
     ) {
-        validateReview(request.getRating(), request.getReviewText());
 
         String contextName = SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -105,9 +104,27 @@ public class AlbumReviewService {
                     "No puedes editar esta entrada");
         }
 
-        review.setListened(request.isListened());
-        review.setRating(request.getRating());
-        review.setReviewText(request.getReviewText());
+        Integer finalRating = (request.getRating() == null
+                ? review.getRating()
+                : request.getRating());
+        String finalReviewText = (request.getReviewText() == null
+                ? review.getReviewText()
+                : request.getReviewText());
+
+        validateReview(finalRating, finalReviewText);
+
+        if (request.getListened() != null){
+            review.setListened(request.getListened());
+        }
+        if (request.getRating() != null){
+            review.setRating(request.getRating());
+        }
+        if(request.getReviewText() != null){
+            review.setReviewText(request.getReviewText());
+        }
+        if(request.getListenedAt() != null){
+            review.setListenedAt(request.getListenedAt());
+        }
 
         AlbumReview updatedReview = albumReviewRepository.save(review);
 
