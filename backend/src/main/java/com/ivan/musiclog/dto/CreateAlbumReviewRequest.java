@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -23,4 +25,6 @@ public class CreateAlbumReviewRequest {
     private Integer rating;
 
     private String reviewText;
+
+    private LocalDateTime listenedAt;
 }

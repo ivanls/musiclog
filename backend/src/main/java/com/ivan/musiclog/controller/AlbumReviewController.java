@@ -46,8 +46,8 @@ public class AlbumReviewController {
     }
 
     @GetMapping("/me")
-    public List<AlbumReviewResponse> getMyReviews(){
-        return albumReviewService.getMyReviews();
+    public List<AlbumReviewResponse> getMyReviews(@RequestParam(required = false) String albumId, @RequestParam(required = false) String artistId){
+        return albumReviewService.getMyReviews(albumId, artistId);
     }
 
     @DeleteMapping("/{reviewId}")

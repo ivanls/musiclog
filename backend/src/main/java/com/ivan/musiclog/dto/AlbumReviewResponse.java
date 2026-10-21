@@ -13,6 +13,7 @@ public class AlbumReviewResponse {
     private String reviewText;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private LocalDateTime listenedAt;
 
     public AlbumReviewResponse() {
     }
@@ -25,7 +26,8 @@ public class AlbumReviewResponse {
             Integer rating,
             String reviewText,
             LocalDateTime createdAt,
-            LocalDateTime updatedAt
+            LocalDateTime updatedAt,
+            LocalDateTime listenedAt
     ) {
         this.id = id;
         this.username = username;
@@ -35,6 +37,7 @@ public class AlbumReviewResponse {
         this.reviewText = reviewText;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+        this.listenedAt = listenedAt;
     }
 
     public Long getId() {
@@ -53,9 +56,7 @@ public class AlbumReviewResponse {
         return listened;
     }
 
-    public Integer getRating() {
-        return rating;
-    }
+    public Integer getRating() { return rating; }
 
     public String getReviewText() {
         return reviewText;
@@ -68,4 +69,6 @@ public class AlbumReviewResponse {
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
+
+    public LocalDateTime getListenedAt() { return listenedAt; }
 }

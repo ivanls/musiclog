@@ -21,6 +21,8 @@ import com.ivan.musiclog.entity.Artist;
 import com.ivan.musiclog.repository.ArtistRepository;
 import com.ivan.musiclog.dto.SpotifyAlbumResponse;
 import com.ivan.musiclog.dto.SpotifyArtistResponse;
+
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import java.util.List;
@@ -61,11 +63,7 @@ public class AlbumReviewService {
 
         String albumId = request.getSpotifyAlbumId();
 
-        if (albumReviewRepository.existsByUser_IdAndAlbum_SpotifyAlbumId(
-                user.getId(), albumId)) {
-            throw new DuplicateAlbumReviewException(
-                    "Ya tienes una entrada para este álbum");
-        }
+
 
         Album album = findOrCreateAlbum(albumId);
 
@@ -75,6 +73,9 @@ public class AlbumReviewService {
         entry.setListened(request.isListened());
         entry.setRating(request.getRating());
         entry.setReviewText(request.getReviewText());
+        entry.setListenedAt(
+                request.getListenedAt() == null ? LocalDateTime.now() : request.getListenedAt()
+        );
 
         AlbumReview savedEntry = albumReviewRepository.save(entry);
 
@@ -128,7 +129,7 @@ public class AlbumReviewService {
                 .toList();
     }
 
-    public List<AlbumReviewResponse> getMyReviews() {
+    public List<AlbumReviewResponse> getMyReviews(String albumId, String artistId) {
         String contextName = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
@@ -137,10 +138,32 @@ public class AlbumReviewService {
                 .orElseThrow(() ->
                         new UsernameNotFoundException("User not found"));
 
-        return albumReviewRepository.findReviewsByUser_Id(user.getId())
-                .stream()
-                .map(this::toResponse)
-                .toList();
+        if (albumId != null && !albumId.isBlank()
+                && artistId != null && !artistId.isBlank()) {
+            return albumReviewRepository.findReviewsByUser_IdAndAlbum_Artist_SpotifyArtistIdAndAlbum_SpotifyAlbumIdOrderByListenedAtDesc(user.getId(),artistId, albumId)
+                    .stream()
+                    .map(this::toResponse)
+                    .toList();
+        }else if(albumId != null && !albumId.isBlank()){
+            return albumReviewRepository.findReviewsByUser_IdAndAlbum_SpotifyAlbumIdOrderByListenedAtDesc(user.getId(), albumId)
+                    .stream()
+                    .map(this::toResponse)
+                    .toList();
+        } else if (artistId != null && !artistId.isBlank()){
+            return albumReviewRepository.findReviewsByUser_IdAndAlbum_Artist_SpotifyArtistIdOrderByListenedAtDesc(user.getId(), artistId)
+                    .stream()
+                    .map(this::toResponse)
+                    .toList();
+        } else {
+            return albumReviewRepository.findReviewsByUser_IdOrderByListenedAtDesc(user.getId())
+                    .stream()
+                    .map(this::toResponse)
+                    .toList();
+        }
+
+
+
+
     }
 
     public void deleteAlbumReview(Long reviewId) {
@@ -170,6 +193,12 @@ public class AlbumReviewService {
                     "No puedes publicar una reseña sin una puntuación"
             );
         }
+        if (rating != null && (rating < 0 || rating > 10)){
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "La puntuación debe estar entre 0 y 10"
+            );
+        }
     }
 
     private AlbumReviewResponse toResponse(AlbumReview review) {
@@ -183,7 +212,8 @@ public class AlbumReviewService {
                 review.getRating(),
                 review.getReviewText(),
                 review.getCreatedAt(),
-                review.getUpdatedAt()
+                review.getUpdatedAt(),
+                review.getListenedAt()
         );
     }
 

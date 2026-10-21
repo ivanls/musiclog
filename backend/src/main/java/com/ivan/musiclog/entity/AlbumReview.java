@@ -12,15 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(
-        name = "album_reviews",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uk_review_user_album",
-                        columnNames = {"user_id", "album_id"}
-                )
-        }
-)
+@Table(name = "album_reviews")
 public class AlbumReview {
 
     @Id
@@ -60,4 +52,7 @@ public class AlbumReview {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    @Column
+    private LocalDateTime listenedAt;
 }
