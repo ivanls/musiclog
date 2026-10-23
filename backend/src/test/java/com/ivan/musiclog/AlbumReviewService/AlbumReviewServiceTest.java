@@ -6,6 +6,7 @@ import com.ivan.musiclog.entity.Album;
 import com.ivan.musiclog.entity.AlbumReview;
 import com.ivan.musiclog.entity.User;
 import com.ivan.musiclog.exception.AccessDeniedException;
+import com.ivan.musiclog.exception.AlbumReviewNotFoundException;
 import com.ivan.musiclog.repository.AlbumReviewRepository;
 import com.ivan.musiclog.repository.UserRepository;
 import com.ivan.musiclog.service.AlbumReviewService;
@@ -147,7 +148,32 @@ public class AlbumReviewServiceTest {
         verify(albumReviewRepository, never()).save(any(AlbumReview.class));
     }
 
+    @Test
+    void updateAlbumReview_shouldThrowAlbumReviewNotFoundException_whenReviewDoesNotExist(){
 
+        User user = new User();
+        user.setId(1L);
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("ivan", "password")
+        );
+
+        when(userRepository.findByUsername("ivan"))
+                .thenReturn(Optional.of(user));
+
+        when(albumReviewRepository.findById(10L))
+                .thenReturn(Optional.empty());
+
+        UpdateAlbumReviewRequest request = new UpdateAlbumReviewRequest();
+
+        AlbumReviewNotFoundException exception = assertThrows(AlbumReviewNotFoundException.class, ()->{
+            albumReviewService.updateAlbumReview(10L, request);
+        });
+
+        assertEquals("Review not found", exception.getMessage());
+
+        verify(albumReviewRepository, never()).save(any(AlbumReview.class));
+    }
 
 }
 
