@@ -21,8 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -175,5 +174,79 @@ public class AlbumReviewServiceTest {
         verify(albumReviewRepository, never()).save(any(AlbumReview.class));
     }
 
+    @Test
+    void updateAlbumReview_shouldUpdateListenedToFalse(){
+        User user = new User();
+        user.setId(1L);
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("ivan", "password")
+        );
+
+        when(userRepository.findByUsername("ivan"))
+                .thenReturn(Optional.of(user));
+
+        Album album = new Album();
+        album.setSpotifyAlbumId("ABC");
+
+        AlbumReview albumReview = new AlbumReview();
+        albumReview.setUser(user);
+        albumReview.setAlbum(album);
+        albumReview.setListened(true);
+        albumReview.setId(10L);
+
+        when(albumReviewRepository.findById(10L))
+                .thenReturn(Optional.of(albumReview));
+
+        when(albumReviewRepository.save(any(AlbumReview.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        UpdateAlbumReviewRequest request = new UpdateAlbumReviewRequest();
+        request.setListened(false);
+
+        AlbumReviewResponse response = albumReviewService.updateAlbumReview(10L, request);
+
+        assertFalse(response.isListened());
+    }
+
+    @Test
+    void updateAlbumReview_shouldPreserveFieldsNotIncludedInRequest(){
+
+        User user = new User();
+        user.setId(1L);
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("ivan", "password")
+        );
+
+        when(userRepository.findByUsername("ivan"))
+                .thenReturn(Optional.of(user));
+
+        Album album = new Album();
+        album.setSpotifyAlbumId("ABC");
+
+        AlbumReview review = new AlbumReview();
+        review.setId(10L);
+        review.setAlbum(album);
+        review.setUser(user);
+        review.setListened(true);
+        review.setRating(7);
+        review.setReviewText("Buen disco");
+
+        when(albumReviewRepository.findById(10L))
+                .thenReturn(Optional.of(review));
+
+        when(albumReviewRepository.save(any(AlbumReview.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        UpdateAlbumReviewRequest request = new UpdateAlbumReviewRequest();
+        request.setRating(9);
+
+        AlbumReviewResponse response = albumReviewService.updateAlbumReview(10L, request);
+
+        assertEquals(9, response.getRating());
+        assertEquals("Buen disco", response.getReviewText());
+        assertTrue(response.isListened());
+    }
 }
 
