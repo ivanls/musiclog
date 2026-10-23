@@ -5,6 +5,7 @@ import com.ivan.musiclog.dto.UpdateAlbumReviewRequest;
 import com.ivan.musiclog.entity.Album;
 import com.ivan.musiclog.entity.AlbumReview;
 import com.ivan.musiclog.entity.User;
+import com.ivan.musiclog.exception.AccessDeniedException;
 import com.ivan.musiclog.repository.AlbumReviewRepository;
 import com.ivan.musiclog.repository.UserRepository;
 import com.ivan.musiclog.service.AlbumReviewService;
@@ -20,9 +21,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class AlbumReviewServiceTest {
@@ -115,7 +116,35 @@ public class AlbumReviewServiceTest {
 
     @Test
     void updateAlbumReview_shouldThrowAccessDeniedException_whenUserIsNotOwner(){
+        User user1 = new User();
+        user1.setId(1L);
+        User user2 = new User();
+        user2.setId(2L);
 
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("ivan", "password")
+        );
+
+        when(userRepository.findByUsername("ivan"))
+                .thenReturn(Optional.of(user1));
+
+        AlbumReview albumReview = new AlbumReview();
+        albumReview.setId(10L);
+        albumReview.setUser(user2);
+
+        when(albumReviewRepository.findById(10L))
+                .thenReturn(Optional.of(albumReview));
+
+        UpdateAlbumReviewRequest request = new UpdateAlbumReviewRequest();
+        request.setRating(8);
+
+        AccessDeniedException exception = assertThrows(AccessDeniedException.class, ()->{
+            albumReviewService.updateAlbumReview(albumReview.getId(), request);
+        });
+
+        assertEquals("No puedes editar esta entrada", exception.getMessage());
+
+        verify(albumReviewRepository, never()).save(any(AlbumReview.class));
     }
 
 
