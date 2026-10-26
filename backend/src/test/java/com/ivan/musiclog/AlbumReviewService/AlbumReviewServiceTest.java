@@ -144,9 +144,9 @@ public class AlbumReviewServiceTest {
         UpdateAlbumReviewRequest request = new UpdateAlbumReviewRequest();
         request.setRating(8);
 
-        AccessDeniedException exception = assertThrows(AccessDeniedException.class, () -> {
-            albumReviewService.updateAlbumReview(albumReview.getId(), request);
-        });
+        AccessDeniedException exception = assertThrows(AccessDeniedException.class, () ->
+            albumReviewService.updateAlbumReview(albumReview.getId(), request)
+        );
 
         assertEquals("No puedes editar esta entrada", exception.getMessage());
 
@@ -173,9 +173,9 @@ public class AlbumReviewServiceTest {
 
         UpdateAlbumReviewRequest request = new UpdateAlbumReviewRequest();
 
-        AlbumReviewNotFoundException exception = assertThrows(AlbumReviewNotFoundException.class, () -> {
-            albumReviewService.updateAlbumReview(10L, request);
-        });
+        AlbumReviewNotFoundException exception = assertThrows(AlbumReviewNotFoundException.class, () ->
+            albumReviewService.updateAlbumReview(10L, request)
+        );
 
         assertEquals("Review not found", exception.getMessage());
 
