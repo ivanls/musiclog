@@ -16,7 +16,7 @@ public class UpdateAlbumReviewRequest {
 
     private Boolean listened;
 
-    @Min(1)
+    @Min(0)
     @Max(10)
     private Integer rating;
 
