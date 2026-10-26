@@ -16,8 +16,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
 
@@ -248,5 +250,41 @@ public class AlbumReviewServiceTest {
         assertEquals("Buen disco", response.getReviewText());
         assertTrue(response.isListened());
     }
+
+    @Test
+    void updateAlbumReview_shouldThrowBadRequest_whenRatingIsAboveMaximum(){
+        User user = new User();
+        user.setId(1L);
+
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("ivan", "password")
+        );
+
+        when(userRepository.findByUsername("ivan"))
+                .thenReturn(Optional.of(user));
+
+        Album album = new Album();
+        album.setSpotifyAlbumId("ABC");
+
+        AlbumReview review = new AlbumReview();
+        review.setId(10L);
+        review.setUser(user);
+        review.setAlbum(album);
+
+        when(albumReviewRepository.findById(10L))
+                .thenReturn(Optional.of(review));
+
+        UpdateAlbumReviewRequest request = new UpdateAlbumReviewRequest();
+        request.setRating(11);
+
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+                ()-> albumReviewService.updateAlbumReview(10L, request));
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals("La puntuación debe estar entre 0 y 10", exception.getReason());
+
+        verify(albumReviewRepository, never()).save(any(AlbumReview.class));
+    }
+
 }
 
