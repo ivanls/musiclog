@@ -252,6 +252,45 @@ public class AlbumReviewServiceTest {
     }
 
     @Test
+    void updateAlbumReview_shouldThrowBadRequest_whenRatingIsBelowMinimum() {
+        // Verifica que una puntuación inferior a 0 provoca un error
+        // BAD_REQUEST y que la reseña no se guarda.
+
+        Long userId = 1L;
+        Long reviewId = 10L;
+
+        User user = new User();
+        user.setId(userId);
+
+        AlbumReview albumReview = new AlbumReview();
+        albumReview.setId(reviewId);
+        albumReview.setUser(user);
+        albumReview.setRating(8);
+
+        UpdateAlbumReviewRequest request = new UpdateAlbumReviewRequest();
+        request.setRating(-5);
+
+        when(albumReviewRepository.findById(reviewId))
+                .thenReturn(Optional.of(albumReview));
+
+        when(userRepository.findByUsername(anyString()))
+                .thenReturn(Optional.of(user));
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> albumReviewService.updateAlbumReview(reviewId, request)
+        );
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals(
+                "La puntuación debe estar entre 0 y 10",
+                exception.getReason()
+        );
+
+        verify(albumReviewRepository, never()).save(any(AlbumReview.class));
+    }
+
+    @Test
     void updateAlbumReview_shouldThrowBadRequest_whenRatingIsAboveMaximum(){
         User user = new User();
         user.setId(1L);
@@ -282,6 +321,45 @@ public class AlbumReviewServiceTest {
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
         assertEquals("La puntuación debe estar entre 0 y 10", exception.getReason());
+
+        verify(albumReviewRepository, never()).save(any(AlbumReview.class));
+    }
+
+    @Test
+    void updateAlbumReview_shouldThrowBadRequest_whenReviewTextProvidedWithoutRating() {
+        // Verifica que enviar texto de reseña sin puntuación provoca un error
+        // BAD_REQUEST y que la reseña no se guarda.
+
+        Long userId = 1L;
+        Long reviewId = 10L;
+
+        User user = new User();
+        user.setId(userId);
+
+        AlbumReview albumReview = new AlbumReview();
+        albumReview.setId(reviewId);
+        albumReview.setUser(user);
+        albumReview.setRating(8);
+
+        UpdateAlbumReviewRequest request = new UpdateAlbumReviewRequest();
+        request.setReviewText("Un gran álbum");
+
+        when(albumReviewRepository.findById(reviewId))
+                .thenReturn(Optional.of(albumReview));
+
+        when(userRepository.findByUsername(anyString()))
+                .thenReturn(Optional.of(user));
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> albumReviewService.updateAlbumReview(reviewId, request)
+        );
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
+        assertEquals(
+                "No puedes publicar una reseña sin una puntuación",
+                exception.getReason()
+        );
 
         verify(albumReviewRepository, never()).save(any(AlbumReview.class));
     }
