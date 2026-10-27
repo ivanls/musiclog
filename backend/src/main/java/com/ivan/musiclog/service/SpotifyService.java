@@ -44,7 +44,7 @@ public class SpotifyService {
                 .bodyToMono(String.class)
                 .block();
 
-        if (response == null || response.isBlank()) {
+        if (response == null || response.isBlank()){
             throw new RuntimeException("La respuesta de Spotify para obtener el token está vacía");
         }
 
@@ -55,10 +55,10 @@ public class SpotifyService {
             throw new RuntimeException("Error al parsear la respuesta de Spotify", e);
         }
 
-        if (!json.hasNonNull("access_token")
-                || json.path("access_token").asText("").isBlank()) {
+        if (!json.hasNonNull("access_token") || json.path("access_token").asText("").isBlank()){
             throw new RuntimeException("No se ha recibido un access_token válido de Spotify");
         }
+
         return json.path("access_token").asText();
     }
 
@@ -67,7 +67,6 @@ public class SpotifyService {
 
         String token = getAccessToken();
 
-        // Request search results from Spotify.
         String response = spotifyWebClient
                 .get()
                 .uri(uriBuilder -> uriBuilder
@@ -81,110 +80,17 @@ public class SpotifyService {
                 .bodyToMono(String.class)
                 .block();
 
-        List<SpotifyArtistResponse> artistResponses = new ArrayList<>();
-        List<SpotifyAlbumResponse> albumResponses = new ArrayList<>();
-        List<SpotifyTrackResponse> trackResponses = new ArrayList<>();
-
-        try {
-            JsonNode json = objectMapper.readTree(response);
-
-            // Map artist results to application DTOs.
-            JsonNode artists = json.get("artists").get("items");
-
-            for (JsonNode artist : artists) {
-                String id = artist.get("id").asText();
-                String name = artist.get("name").asText();
-                String imageUrl = getImageUrl(artist.get("images"));
-                String spotifyUrl = getSpotifyUrl(artist);
-
-                SpotifyArtistResponse artistResponse =
-                        new SpotifyArtistResponse(id, name, imageUrl, spotifyUrl);
-
-                artistResponses.add(artistResponse);
-            }
-
-            // Map album results to application DTOs.
-            JsonNode albums = json.get("albums").get("items");
-
-            for (JsonNode album : albums) {
-                String id = album.get("id").asText();
-                String name = album.get("name").asText();
-
-                String artistName = album
-                        .get("artists")
-                        .path(0)
-                        .path("name")
-                        .asText();
-
-                String imageUrl = getImageUrl(album.get("images"));
-                String spotifyUrl = getSpotifyUrl(album);
-                String artistId = album
-                        .get("artists")
-                        .path(0)
-                        .path("id")
-                        .asText();
-
-                SpotifyAlbumResponse albumResponse =
-                        new SpotifyAlbumResponse(
-                                id,
-                                name,
-                                artistName,
-                                imageUrl,
-                                spotifyUrl,
-                                artistId
-                        );
-
-                albumResponses.add(albumResponse);
-            }
-
-            // Map track results to application DTOs.
-            JsonNode tracks = json.get("tracks").get("items");
-
-            for (JsonNode track : tracks) {
-                String id = track.get("id").asText();
-                String name = track.get("name").asText();
-                Integer durationMs = track.get("duration_ms").asInt();
-
-                String artistName = track
-                        .get("artists")
-                        .path(0)
-                        .path("name")
-                        .asText();
-
-                String albumName = track
-                        .path("album")
-                        .path("name")
-                        .asText();
-
-                String imageUrl = getImageUrl(
-                        track.path("album").path("images")
-                );
-
-                String spotifyUrl = getSpotifyUrl(track);
-
-                SpotifyTrackResponse trackResponse =
-                        new SpotifyTrackResponse(
-                                id,
-                                name,
-                                artistName,
-                                albumName,
-                                durationMs,
-                                imageUrl,
-                                spotifyUrl
-                        );
-
-                trackResponses.add(trackResponse);
-            }
-
-        } catch (Exception e) {
-            throw new RuntimeException("Error al obtener los datos", e);
+        if (response == null || response.isBlank()) {
+            throw new RuntimeException("Respuesta vacía al buscar en Spotify");
         }
 
-        return new SpotifySearchResponse(
-                albumResponses,
-                artistResponses,
-                trackResponses
-        );
+        JsonNode json = parseJson(response);
+
+        List<SpotifyArtistResponse> artistResponses = mapArtists(json);
+        List<SpotifyAlbumResponse> albumResponses = mapAlbums(json);
+        List<SpotifyTrackResponse> trackResponses = mapTracks(json);
+
+        return new SpotifySearchResponse(albumResponses, artistResponses, trackResponses);
     }
 
     // Extracts the first available image URL from a Spotify images array.
@@ -279,7 +185,6 @@ public class SpotifyService {
     }
 
     // Get Track by ID
-    // Get Track by ID
     public SpotifyTrackResponse getTrackById(String id) {
 
         String token = getAccessToken();
@@ -322,4 +227,97 @@ public class SpotifyService {
         }
     }
 
+    private JsonNode parseJson(String response) {
+        try {
+            return objectMapper.readTree(response);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al parsear la respuesta de Spotify", e);
+        }
+    }
+
+    private List<SpotifyArtistResponse> mapArtists(JsonNode json) {
+        List<SpotifyArtistResponse> artistResponses = new ArrayList<>();
+
+        JsonNode artistsNode = json.path("artists");
+        JsonNode items = artistsNode.path("items");
+
+        if (items == null || !items.isArray() || items.isEmpty()) {
+            return artistResponses;
+        }
+
+        for (JsonNode artist : items) {
+            String id = artist.path("id").asText();
+            String name = artist.path("name").asText();
+            String imageUrl = getImageUrl(artist.path("images"));
+            String spotifyUrl = getSpotifyUrl(artist);
+
+            artistResponses.add(new SpotifyArtistResponse(id, name, imageUrl, spotifyUrl));
+        }
+
+        return artistResponses;
+    }
+
+    private List<SpotifyAlbumResponse> mapAlbums(JsonNode json) {
+        List<SpotifyAlbumResponse> albumResponses = new ArrayList<>();
+
+        JsonNode albumsNode = json.path("albums");
+        JsonNode items = albumsNode.path("items");
+
+        if (items == null || !items.isArray() || items.isEmpty()) {
+            return albumResponses;
+        }
+
+        for (JsonNode album : items) {
+            String id = album.path("id").asText();
+            String name = album.path("name").asText();
+
+            JsonNode artistsArray = album.path("artists");
+            String artistName = "";
+            String artistId = "";
+
+            if (artistsArray.isArray() && !artistsArray.isEmpty()) {
+                JsonNode firstArtist = artistsArray.path(0);
+                artistName = firstArtist.path("name").asText("");
+                artistId = firstArtist.path("id").asText("");
+            }
+
+            String imageUrl = getImageUrl(album.path("images"));
+            String spotifyUrl = getSpotifyUrl(album);
+
+            albumResponses.add(new SpotifyAlbumResponse(id, name, artistName, imageUrl, spotifyUrl, artistId));
+        }
+
+        return albumResponses;
+    }
+
+    private List<SpotifyTrackResponse> mapTracks(JsonNode json) {
+        List<SpotifyTrackResponse> trackResponses = new ArrayList<>();
+
+        JsonNode tracksNode = json.path("tracks");
+        JsonNode items = tracksNode.path("items");
+
+        if (items == null || !items.isArray() || items.isEmpty()) {
+            return trackResponses;
+        }
+
+        for (JsonNode track : items) {
+            String id = track.path("id").asText();
+            String name = track.path("name").asText();
+            Integer durationMs = track.path("duration_ms").asInt(0);
+
+            JsonNode artistsArray = track.path("artists");
+            String artistName = "";
+            if (artistsArray.isArray() && !artistsArray.isEmpty()) {
+                artistName = artistsArray.path(0).path("name").asText("");
+            }
+
+            String albumName = track.path("album").path("name").asText("");
+            String imageUrl = getImageUrl(track.path("album").path("images"));
+            String spotifyUrl = getSpotifyUrl(track);
+
+            trackResponses.add(new SpotifyTrackResponse(id, name, artistName, albumName, durationMs, imageUrl, spotifyUrl));
+        }
+
+        return trackResponses;
+    }
 }
