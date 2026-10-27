@@ -4,12 +4,14 @@ import com.ivan.musiclog.dto.SpotifyAlbumResponse;
 import com.ivan.musiclog.dto.SpotifyArtistResponse;
 import com.ivan.musiclog.dto.SpotifySearchResponse;
 import com.ivan.musiclog.dto.SpotifyTrackResponse;
+import com.ivan.musiclog.exception.SpotifyNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -130,6 +132,12 @@ public class SpotifyService {
                         .build(id))
                 .headers(headers -> headers.setBearerAuth(token))
                 .retrieve()
+                .onStatus(
+                        status -> status.value() == 404,
+                        clientResponse -> Mono.error(
+                                new SpotifyNotFoundException("Artista no encontrado en Spotify")
+                        )
+                )
                 .bodyToMono(String.class)
                 .block();
 
@@ -165,6 +173,12 @@ public class SpotifyService {
                         .build(id))
                 .headers(headers -> headers.setBearerAuth(token))
                 .retrieve()
+                .onStatus(
+                        status -> status.value() == 404,
+                        clientResponse -> Mono.error(
+                                new SpotifyNotFoundException("Álbum no encontrado en Spotify")
+                        )
+                )
                 .bodyToMono(String.class)
                 .block();
 
@@ -213,6 +227,12 @@ public class SpotifyService {
                         .build(id))
                 .headers(headers -> headers.setBearerAuth(token))
                 .retrieve()
+                .onStatus(
+                        status -> status.value() == 404,
+                        clientResponse -> Mono.error(
+                                new SpotifyNotFoundException("Pista no encontrada en Spotify")
+                        )
+                )
                 .bodyToMono(String.class)
                 .block();
 

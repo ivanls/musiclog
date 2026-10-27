@@ -3,9 +3,12 @@ package com.ivan.musiclog.controller;
 import com.ivan.musiclog.dto.AlbumReviewResponse;
 import com.ivan.musiclog.dto.CreateAlbumReviewRequest;
 import com.ivan.musiclog.dto.UpdateAlbumReviewRequest;
-import com.ivan.musiclog.entity.AlbumReview;
 import com.ivan.musiclog.service.AlbumReviewService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,18 +39,22 @@ public class AlbumReviewController {
     }
 
     @GetMapping("/{reviewId}")
-    public AlbumReviewResponse getReviewById(@PathVariable Long reviewId){
+    public AlbumReviewResponse getReviewById(@PathVariable Long reviewId) {
         return albumReviewService.getReviewById(reviewId);
     }
 
     @GetMapping("/album/{spotifyAlbumId}")
-    public List<AlbumReviewResponse> findBySpotifyAlbumId(@PathVariable String spotifyAlbumId){
+    public List<AlbumReviewResponse> findBySpotifyAlbumId(@PathVariable String spotifyAlbumId) {
         return albumReviewService.findBySpotifyAlbumId(spotifyAlbumId);
     }
 
     @GetMapping("/me")
-    public List<AlbumReviewResponse> getMyReviews(@RequestParam(required = false) String albumId, @RequestParam(required = false) String artistId){
-        return albumReviewService.getMyReviews(albumId, artistId);
+    public Page<AlbumReviewResponse> getMyReviews(@RequestParam(required = false) String albumId,
+                                                  @RequestParam(required = false) String artistId,
+                                                  @PageableDefault(size = 20,
+                                                          sort = "listenedAt",
+                                                          direction = Sort.Direction.DESC) Pageable pageable) {
+        return albumReviewService.getMyReviews(albumId, artistId, pageable);
     }
 
     @DeleteMapping("/{reviewId}")

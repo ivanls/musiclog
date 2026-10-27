@@ -1,31 +1,27 @@
 package com.ivan.musiclog.service;
 
-import com.ivan.musiclog.dto.AlbumReviewResponse;
-import com.ivan.musiclog.dto.CreateAlbumReviewRequest;
-import com.ivan.musiclog.dto.UpdateAlbumReviewRequest;
+import com.ivan.musiclog.dto.*;
 import com.ivan.musiclog.entity.Album;
 import com.ivan.musiclog.entity.AlbumReview;
+import com.ivan.musiclog.entity.Artist;
 import com.ivan.musiclog.entity.User;
 import com.ivan.musiclog.exception.AccessDeniedException;
 import com.ivan.musiclog.exception.AlbumReviewNotFoundException;
-import com.ivan.musiclog.exception.DuplicateAlbumReviewException;
 import com.ivan.musiclog.repository.AlbumRepository;
 import com.ivan.musiclog.repository.AlbumReviewRepository;
+import com.ivan.musiclog.repository.ArtistRepository;
 import com.ivan.musiclog.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import com.ivan.musiclog.entity.Artist;
-import com.ivan.musiclog.repository.ArtistRepository;
-import com.ivan.musiclog.dto.SpotifyAlbumResponse;
-import com.ivan.musiclog.dto.SpotifyArtistResponse;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
-
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AlbumReviewService {
@@ -144,7 +140,7 @@ public class AlbumReviewService {
                 .toList();
     }
 
-    public List<AlbumReviewResponse> getMyReviews(String albumId, String artistId) {
+    public Page<AlbumReviewResponse> getMyReviews(String albumId, String artistId, Pageable pageable) {
         String contextName = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
@@ -155,25 +151,17 @@ public class AlbumReviewService {
 
         if (albumId != null && !albumId.isBlank()
                 && artistId != null && !artistId.isBlank()) {
-            return albumReviewRepository.findReviewsByUser_IdAndAlbum_Artist_SpotifyArtistIdAndAlbum_SpotifyAlbumIdOrderByListenedAtDesc(user.getId(), artistId, albumId)
-                    .stream()
-                    .map(this::toResponse)
-                    .toList();
+            return albumReviewRepository.findReviewsByUser_IdAndAlbum_Artist_SpotifyArtistIdAndAlbum_SpotifyAlbumIdOrderByListenedAtDesc(user.getId(), artistId, albumId, pageable)
+                    .map(this::toResponse);
         } else if (albumId != null && !albumId.isBlank()) {
-            return albumReviewRepository.findReviewsByUser_IdAndAlbum_SpotifyAlbumIdOrderByListenedAtDesc(user.getId(), albumId)
-                    .stream()
-                    .map(this::toResponse)
-                    .toList();
+            return albumReviewRepository.findReviewsByUser_IdAndAlbum_SpotifyAlbumIdOrderByListenedAtDesc(user.getId(), albumId, pageable)
+                    .map(this::toResponse);
         } else if (artistId != null && !artistId.isBlank()) {
-            return albumReviewRepository.findReviewsByUser_IdAndAlbum_Artist_SpotifyArtistIdOrderByListenedAtDesc(user.getId(), artistId)
-                    .stream()
-                    .map(this::toResponse)
-                    .toList();
+            return albumReviewRepository.findReviewsByUser_IdAndAlbum_Artist_SpotifyArtistIdOrderByListenedAtDesc(user.getId(), artistId, pageable)
+                    .map(this::toResponse);
         } else {
-            return albumReviewRepository.findReviewsByUser_IdOrderByListenedAtDesc(user.getId())
-                    .stream()
-                    .map(this::toResponse)
-                    .toList();
+            return albumReviewRepository.findReviewsByUser_IdOrderByListenedAtDesc(user.getId(), pageable)
+                    .map(this::toResponse);
         }
 
 

@@ -1,6 +1,8 @@
 package com.ivan.musiclog.repository;
 
 import com.ivan.musiclog.entity.AlbumReview;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -14,18 +16,19 @@ public interface AlbumReviewRepository extends JpaRepository<AlbumReview, Long> 
 
     List<AlbumReview> findByAlbum_SpotifyAlbumId(String spotifyAlbumId);
 
-    List<AlbumReview> findReviewsByUser_IdAndAlbum_SpotifyAlbumIdOrderByListenedAtDesc(Long userId, String spotifyAlbumId);
+    Page<AlbumReview> findReviewsByUser_IdAndAlbum_SpotifyAlbumIdOrderByListenedAtDesc(Long userId, String spotifyAlbumId, Pageable pageable);
 
-    List<AlbumReview> findReviewsByUser_IdAndAlbum_Artist_SpotifyArtistIdOrderByListenedAtDesc(Long userId, String spotifyAlbumId);
+    Page<AlbumReview> findReviewsByUser_IdAndAlbum_Artist_SpotifyArtistIdOrderByListenedAtDesc(Long userId, String spotifyAlbumId, Pageable pageable);
 
-    List<AlbumReview> findReviewsByUser_IdAndAlbum_Artist_SpotifyArtistIdAndAlbum_SpotifyAlbumIdOrderByListenedAtDesc(
+    Page<AlbumReview> findReviewsByUser_IdAndAlbum_Artist_SpotifyArtistIdAndAlbum_SpotifyAlbumIdOrderByListenedAtDesc(
             Long userId,
             String artistId,
-            String albumId
+            String albumId,
+            Pageable pageable
     );
 
     @Query("SELECT r FROM AlbumReview r WHERE r.user.id = :userId ORDER BY r.listenedAt DESC NULLS LAST")
-    List<AlbumReview> findReviewsByUser_IdOrderByListenedAtDesc(
-            @Param("userId") Long userId
+    Page<AlbumReview> findReviewsByUser_IdOrderByListenedAtDesc(
+            @Param("userId") Long userId, Pageable pageable
     );
 }
