@@ -20,7 +20,7 @@ public class CreateAlbumReviewRequest {
 
     private boolean listened = false;
 
-    @Min(1)
+    @Min(0)
     @Max(10)
     private Integer rating;
 

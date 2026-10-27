@@ -63,8 +63,6 @@ public class AlbumReviewService {
 
         String albumId = request.getSpotifyAlbumId();
 
-
-
         Album album = findOrCreateAlbum(albumId);
 
         AlbumReview entry = new AlbumReview();
@@ -113,16 +111,16 @@ public class AlbumReviewService {
 
         validateReview(finalRating, finalReviewText);
 
-        if (request.getListened() != null){
+        if (request.getListened() != null) {
             review.setListened(request.getListened());
         }
-        if (request.getRating() != null){
+        if (request.getRating() != null) {
             review.setRating(request.getRating());
         }
-        if(request.getReviewText() != null){
+        if (request.getReviewText() != null) {
             review.setReviewText(request.getReviewText());
         }
-        if(request.getListenedAt() != null){
+        if (request.getListenedAt() != null) {
             review.setListenedAt(request.getListenedAt());
         }
 
@@ -157,16 +155,16 @@ public class AlbumReviewService {
 
         if (albumId != null && !albumId.isBlank()
                 && artistId != null && !artistId.isBlank()) {
-            return albumReviewRepository.findReviewsByUser_IdAndAlbum_Artist_SpotifyArtistIdAndAlbum_SpotifyAlbumIdOrderByListenedAtDesc(user.getId(),artistId, albumId)
+            return albumReviewRepository.findReviewsByUser_IdAndAlbum_Artist_SpotifyArtistIdAndAlbum_SpotifyAlbumIdOrderByListenedAtDesc(user.getId(), artistId, albumId)
                     .stream()
                     .map(this::toResponse)
                     .toList();
-        }else if(albumId != null && !albumId.isBlank()){
+        } else if (albumId != null && !albumId.isBlank()) {
             return albumReviewRepository.findReviewsByUser_IdAndAlbum_SpotifyAlbumIdOrderByListenedAtDesc(user.getId(), albumId)
                     .stream()
                     .map(this::toResponse)
                     .toList();
-        } else if (artistId != null && !artistId.isBlank()){
+        } else if (artistId != null && !artistId.isBlank()) {
             return albumReviewRepository.findReviewsByUser_IdAndAlbum_Artist_SpotifyArtistIdOrderByListenedAtDesc(user.getId(), artistId)
                     .stream()
                     .map(this::toResponse)
@@ -177,8 +175,6 @@ public class AlbumReviewService {
                     .map(this::toResponse)
                     .toList();
         }
-
-
 
 
     }
@@ -210,7 +206,7 @@ public class AlbumReviewService {
                     "No puedes publicar una reseña sin una puntuación"
             );
         }
-        if (rating != null && (rating < 0 || rating > 10)){
+        if (rating != null && (rating < 0 || rating > 10)) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "La puntuación debe estar entre 0 y 10"

@@ -44,12 +44,22 @@ public class SpotifyService {
                 .bodyToMono(String.class)
                 .block();
 
-        try {
-            JsonNode json = objectMapper.readTree(response);
-            return json.get("access_token").asText();
-        } catch (Exception e) {
-            throw new RuntimeException("Error al obtener el access token de Spotify", e);
+        if (response == null || response.isBlank()) {
+            throw new RuntimeException("La respuesta de Spotify para obtener el token está vacía");
         }
+
+        JsonNode json;
+        try {
+            json = objectMapper.readTree(response);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al parsear la respuesta de Spotify", e);
+        }
+
+        if (!json.hasNonNull("access_token")
+                || json.path("access_token").asText("").isBlank()) {
+            throw new RuntimeException("No se ha recibido un access_token válido de Spotify");
+        }
+        return json.path("access_token").asText();
     }
 
     // Searches Spotify and maps the results to application-specific DTOs.
