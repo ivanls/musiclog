@@ -1,4 +1,4 @@
-package com.ivan.musiclog.AlbumReviewService;
+package com.ivan.musiclog;
 
 import com.ivan.musiclog.dto.AlbumReviewResponse;
 import com.ivan.musiclog.dto.UpdateAlbumReviewRequest;
@@ -56,14 +56,11 @@ public class AlbumReviewServiceTest {
 
         // Simulamos que el usuario autenticado se llama "ivan".
         // El servicio obtendrá este nombre mediante SecurityContextHolder.
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken("ivan", "password")
-        );
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("ivan", "password"));
 
         // Cuando el servicio busque a "ivan", el repositorio simulado
         // devolverá nuestro usuario ficticio.
-        when(userRepository.findByUsername("ivan"))
-                .thenReturn(Optional.of(user));
+        when(userRepository.findByUsername("ivan")).thenReturn(Optional.of(user));
 
 
         // 2. PREPARAR LA REVIEW Y SU ÁLBUM
@@ -86,13 +83,11 @@ public class AlbumReviewServiceTest {
         // 3. CONFIGURAR EL REPOSITORIO DE REVIEWS
         // Cuando el servicio busque la review con ID 10,
         // el repositorio simulado devolverá nuestra review.
-        when(albumReviewRepository.findById(10L))
-                .thenReturn(Optional.of(review));
+        when(albumReviewRepository.findById(10L)).thenReturn(Optional.of(review));
 
         // Simulamos el guardado devolviendo el mismo objeto recibido.
         // Sin esta configuración, el mock devolvería null por defecto.
-        when(albumReviewRepository.save(any(AlbumReview.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(albumReviewRepository.save(any(AlbumReview.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
 
         // 4. PREPARAR LA PETICIÓN PATCH
@@ -103,8 +98,7 @@ public class AlbumReviewServiceTest {
 
 
         // 5. EJECUTAR EL MÉTODO QUE QUEREMOS PROBAR
-        AlbumReviewResponse response =
-                albumReviewService.updateAlbumReview(10L, request);
+        AlbumReviewResponse response = albumReviewService.updateAlbumReview(10L, request);
 
 
         // 6. COMPROBAR EL RESULTADO
@@ -127,26 +121,20 @@ public class AlbumReviewServiceTest {
         User user2 = new User();
         user2.setId(2L);
 
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken("ivan", "password")
-        );
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("ivan", "password"));
 
-        when(userRepository.findByUsername("ivan"))
-                .thenReturn(Optional.of(user1));
+        when(userRepository.findByUsername("ivan")).thenReturn(Optional.of(user1));
 
         AlbumReview albumReview = new AlbumReview();
         albumReview.setId(10L);
         albumReview.setUser(user2);
 
-        when(albumReviewRepository.findById(10L))
-                .thenReturn(Optional.of(albumReview));
+        when(albumReviewRepository.findById(10L)).thenReturn(Optional.of(albumReview));
 
         UpdateAlbumReviewRequest request = new UpdateAlbumReviewRequest();
         request.setRating(8);
 
-        AccessDeniedException exception = assertThrows(AccessDeniedException.class, () ->
-            albumReviewService.updateAlbumReview(albumReview.getId(), request)
-        );
+        AccessDeniedException exception = assertThrows(AccessDeniedException.class, () -> albumReviewService.updateAlbumReview(albumReview.getId(), request));
 
         assertEquals("No puedes editar esta entrada", exception.getMessage());
 
@@ -161,21 +149,15 @@ public class AlbumReviewServiceTest {
         User user = new User();
         user.setId(1L);
 
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken("ivan", "password")
-        );
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("ivan", "password"));
 
-        when(userRepository.findByUsername("ivan"))
-                .thenReturn(Optional.of(user));
+        when(userRepository.findByUsername("ivan")).thenReturn(Optional.of(user));
 
-        when(albumReviewRepository.findById(10L))
-                .thenReturn(Optional.empty());
+        when(albumReviewRepository.findById(10L)).thenReturn(Optional.empty());
 
         UpdateAlbumReviewRequest request = new UpdateAlbumReviewRequest();
 
-        AlbumReviewNotFoundException exception = assertThrows(AlbumReviewNotFoundException.class, () ->
-            albumReviewService.updateAlbumReview(10L, request)
-        );
+        AlbumReviewNotFoundException exception = assertThrows(AlbumReviewNotFoundException.class, () -> albumReviewService.updateAlbumReview(10L, request));
 
         assertEquals("Review not found", exception.getMessage());
 
@@ -188,12 +170,9 @@ public class AlbumReviewServiceTest {
         User user = new User();
         user.setId(1L);
 
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken("ivan", "password")
-        );
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("ivan", "password"));
 
-        when(userRepository.findByUsername("ivan"))
-                .thenReturn(Optional.of(user));
+        when(userRepository.findByUsername("ivan")).thenReturn(Optional.of(user));
 
         Album album = new Album();
         album.setSpotifyAlbumId("ABC");
@@ -204,11 +183,9 @@ public class AlbumReviewServiceTest {
         albumReview.setListened(true);
         albumReview.setId(10L);
 
-        when(albumReviewRepository.findById(10L))
-                .thenReturn(Optional.of(albumReview));
+        when(albumReviewRepository.findById(10L)).thenReturn(Optional.of(albumReview));
 
-        when(albumReviewRepository.save(any(AlbumReview.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(albumReviewRepository.save(any(AlbumReview.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         UpdateAlbumReviewRequest request = new UpdateAlbumReviewRequest();
         request.setListened(false);
@@ -226,12 +203,9 @@ public class AlbumReviewServiceTest {
         User user = new User();
         user.setId(1L);
 
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken("ivan", "password")
-        );
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("ivan", "password"));
 
-        when(userRepository.findByUsername("ivan"))
-                .thenReturn(Optional.of(user));
+        when(userRepository.findByUsername("ivan")).thenReturn(Optional.of(user));
 
         Album album = new Album();
         album.setSpotifyAlbumId("ABC");
@@ -244,11 +218,9 @@ public class AlbumReviewServiceTest {
         review.setRating(7);
         review.setReviewText("Buen disco");
 
-        when(albumReviewRepository.findById(10L))
-                .thenReturn(Optional.of(review));
+        when(albumReviewRepository.findById(10L)).thenReturn(Optional.of(review));
 
-        when(albumReviewRepository.save(any(AlbumReview.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(albumReviewRepository.save(any(AlbumReview.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         UpdateAlbumReviewRequest request = new UpdateAlbumReviewRequest();
         request.setRating(9);
@@ -267,12 +239,9 @@ public class AlbumReviewServiceTest {
         User user = new User();
         user.setId(1L);
 
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken("ivan", "password")
-        );
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("ivan", "password"));
 
-        when(userRepository.findByUsername("ivan"))
-                .thenReturn(Optional.of(user));
+        when(userRepository.findByUsername("ivan")).thenReturn(Optional.of(user));
 
         Album album = new Album();
         album.setSpotifyAlbumId("ABC");
@@ -282,14 +251,12 @@ public class AlbumReviewServiceTest {
         review.setUser(user);
         review.setAlbum(album);
 
-        when(albumReviewRepository.findById(10L))
-                .thenReturn(Optional.of(review));
+        when(albumReviewRepository.findById(10L)).thenReturn(Optional.of(review));
 
         UpdateAlbumReviewRequest request = new UpdateAlbumReviewRequest();
         request.setRating(11);
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
-                () -> albumReviewService.updateAlbumReview(10L, request));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> albumReviewService.updateAlbumReview(10L, request));
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
         assertEquals("La puntuación debe estar entre 0 y 10", exception.getReason());
@@ -304,12 +271,9 @@ public class AlbumReviewServiceTest {
         User user = new User();
         user.setId(1L);
 
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken("ivan", "password")
-        );
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("ivan", "password"));
 
-        when(userRepository.findByUsername("ivan"))
-                .thenReturn(Optional.of(user));
+        when(userRepository.findByUsername("ivan")).thenReturn(Optional.of(user));
 
         Album album = new Album();
         album.setSpotifyAlbumId("ABC");
@@ -319,14 +283,12 @@ public class AlbumReviewServiceTest {
         review.setUser(user);
         review.setAlbum(album);
 
-        when(albumReviewRepository.findById(10L))
-                .thenReturn(Optional.of(review));
+        when(albumReviewRepository.findById(10L)).thenReturn(Optional.of(review));
 
         UpdateAlbumReviewRequest request = new UpdateAlbumReviewRequest();
         request.setRating(-5);
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
-                () -> albumReviewService.updateAlbumReview(10L, request));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> albumReviewService.updateAlbumReview(10L, request));
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
         assertEquals("La puntuación debe estar entre 0 y 10", exception.getReason());
@@ -341,12 +303,9 @@ public class AlbumReviewServiceTest {
         User user = new User();
         user.setId(1L);
 
-        SecurityContextHolder.getContext().setAuthentication(
-                new UsernamePasswordAuthenticationToken("ivan", "password")
-        );
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken("ivan", "password"));
 
-        when(userRepository.findByUsername("ivan"))
-                .thenReturn(Optional.of(user));
+        when(userRepository.findByUsername("ivan")).thenReturn(Optional.of(user));
 
         Album album = new Album();
         album.setSpotifyAlbumId("ABC");
@@ -357,14 +316,12 @@ public class AlbumReviewServiceTest {
         review.setAlbum(album);
 
 
-        when(albumReviewRepository.findById(10L))
-                .thenReturn(Optional.of(review));
+        when(albumReviewRepository.findById(10L)).thenReturn(Optional.of(review));
 
         UpdateAlbumReviewRequest request = new UpdateAlbumReviewRequest();
         request.setReviewText("Buen disco");
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
-                () -> albumReviewService.updateAlbumReview(10L, request));
+        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> albumReviewService.updateAlbumReview(10L, request));
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
         assertEquals("No puedes publicar una reseña sin una puntuación", exception.getReason());
