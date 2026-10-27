@@ -54,4 +54,11 @@ public class GlobalExceptionHandler {
                 .body(ex.getMessage());
     }
 
+    @ExceptionHandler(SpotifyNotFoundException.class)
+    public ResponseEntity<?> handleSpotifyNotFound (SpotifyNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ex.getMessage());
+    }
+
  }

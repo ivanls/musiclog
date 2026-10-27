@@ -63,7 +63,15 @@ public class SpotifyService {
     }
 
     // Searches Spotify and maps the results to application-specific DTOs.
+    // Searches Spotify and maps the results to application-specific DTOs.
     public SpotifySearchResponse search(String query) {
+
+        if (query == null || query.isBlank()) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.BAD_REQUEST,
+                    "Debes indicar un término de búsqueda"
+            );
+        }
 
         String token = getAccessToken();
 
@@ -165,8 +173,17 @@ public class SpotifyService {
 
             String albumId = json.get("id").asText();
             String name = json.get("name").asText();
-            String artistName = json.path("artists").path(0).path("name").asText();
-            String artistId = json.path("artists").path(0).path("id").asText();
+
+            JsonNode artistsArray = json.path("artists");
+            String artistName = "";
+            String artistId = "";
+
+            if (artistsArray.isArray() && !artistsArray.isEmpty()) {
+                JsonNode firstArtist = artistsArray.path(0);
+                artistName = firstArtist.path("name").asText("");
+                artistId = firstArtist.path("id").asText("");
+            }
+
             String imageUrl = getImageUrl(json.get("images"));
             String spotifyUrl = getSpotifyUrl(json);
 
@@ -204,12 +221,16 @@ public class SpotifyService {
 
             String trackId = json.get("id").asText();
             String name = json.get("name").asText();
-            String artistName = json.path("artists").path(0).get("name").asText();
-            String albumName = json.path("album").path("name").asText();
-            Integer durationMs = json.get("duration_ms").asInt();
-            String imageUrl = getImageUrl(
-                    json.path("album").path("images")
-            );
+
+            JsonNode artistsArray = json.path("artists");
+            String artistName = "";
+            if (artistsArray.isArray() && !artistsArray.isEmpty()) {
+                artistName = artistsArray.path(0).path("name").asText("");
+            }
+
+            String albumName = json.path("album").path("name").asText("");
+            Integer durationMs = json.path("duration_ms").asInt(0);
+            String imageUrl = getImageUrl(json.path("album").path("images"));
             String spotifyUrl = getSpotifyUrl(json);
 
             return new SpotifyTrackResponse(
