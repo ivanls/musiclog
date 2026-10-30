@@ -20,6 +20,14 @@ type Album = {
   spotifyUrl: string | null
 }
 
+type ReviewsPage = {
+  content: Review[]
+  totalElements: number
+  totalPages: number
+  size: number
+  number: number
+}
+
 function RecentAlbums() {
   const { isLoggedIn } = useAuth()
 
@@ -48,15 +56,24 @@ function RecentAlbums() {
           throw new Error('No se han podido cargar tus reseñas.')
         }
 
-        const reviews: Review[] = await reviewsResponse.json()
+        const page: ReviewsPage = await reviewsResponse.json()
+        const reviews: Review[] = page.content ?? []
 
-        const recentReviews = [...reviews]
-          .sort(
+        const sortedReviews = [...reviews].sort(
             (a, b) =>
-              new Date(b.createdAt).getTime() -
-              new Date(a.createdAt).getTime(),
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           )
-          .slice(0, 6)
+        
+        const seenAlbumIds = new Set<string>()
+        const recentReviews: Review[] = []
+
+        for (const review of sortedReviews) {
+          if (!seenAlbumIds.has(review.spotifyAlbumId)) {
+            seenAlbumIds.add(review.spotifyAlbumId)
+            recentReviews.push(review)
+            if (recentReviews.length === 6) break
+          }
+        }
 
         const albumResults = await Promise.all(
           recentReviews.map(async (review) => {

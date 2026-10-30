@@ -39,6 +39,7 @@ function Login() {
         login(data.token)
         setToken(data.token)
         setMessage('Login successful!')
+        
     } catch (error) {
       console.error('Login error:', error)
       setMessage('Could not connect to the server')

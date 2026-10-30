@@ -1,6 +1,7 @@
 
 import SearchBar from '../components/SearchBar'
 import './Home.css'
+import RecentAlbums from '../components/RecentAlbums'
 
 function Home() {
   return (
@@ -18,13 +19,8 @@ function Home() {
 
       <section className="home-section">
         <div className="home-section-heading">
-          <h2>Tus álbumes recientes</h2>
-          <p>Los álbumes que has estado explorando.</p>
+          <RecentAlbums />
         </div>
-
-        <p className="home-empty-state">
-          Tus álbumes recientes aparecerán aquí.
-        </p>
       </section>
 
       <section className="home-section">

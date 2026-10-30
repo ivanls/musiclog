@@ -7,6 +7,7 @@ import TrackDetails from './pages/TrackDetails'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import RecentAlbums from './components/RecentAlbums'
+import Home from './pages/Home'
 
 function App() {
   return (
@@ -14,7 +15,7 @@ function App() {
       <Header title="MusicLog" />
 
       <Routes>
-        <Route path="/" element={<RecentAlbums />} />
+        <Route path="/" element={<Home />} />
 
         <Route path="/artists/:id" element={<ArtistDetails />} />
         <Route path="/albums/:id" element={<AlbumDetails />} />

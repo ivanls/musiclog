@@ -33,7 +33,7 @@ function SearchBar() {
         onChange={(event) => setQuery(event.target.value)}
       />
 
-      <p>{query}</p>
+      
 
       <button onClick={handleSearch}>Search</button>
 
