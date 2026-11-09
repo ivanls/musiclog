@@ -1,5 +1,6 @@
 package com.ivan.musiclog.exception;
 
+import com.ivan.musiclog.entity.AlbumListen;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -56,6 +57,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(SpotifyNotFoundException.class)
     public ResponseEntity<?> handleSpotifyNotFound (SpotifyNotFoundException ex) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ex.getMessage());
+    }
+
+    @ExceptionHandler(AlbumListenNotFoundException.class)
+    public ResponseEntity<?> handleAlbumListenNotFound (AlbumListenNotFoundException ex) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
                 .body(ex.getMessage());

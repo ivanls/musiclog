@@ -4,31 +4,34 @@ import com.ivan.musiclog.entity.AlbumReview;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
 public interface AlbumReviewRepository extends JpaRepository<AlbumReview, Long> {
 
+    List<AlbumReview> findByAlbumListen_Album_SpotifyAlbumId(String spotifyAlbumId);
 
-    boolean existsByUser_IdAndAlbum_SpotifyAlbumId(Long userId, String spotifyAlbumId);
+    Page<AlbumReview> findByAlbumListen_User_IdAndAlbumListen_Album_SpotifyAlbumIdOrderByAlbumListen_ListenedAtDesc(
+            Long userId,
+            String albumId,
+            Pageable pageable
+    );
 
-    List<AlbumReview> findByAlbum_SpotifyAlbumId(String spotifyAlbumId);
+    Page<AlbumReview> findByAlbumListen_User_IdAndAlbumListen_Album_Artist_SpotifyArtistIdOrderByAlbumListen_ListenedAtDesc(
+            Long userId,
+            String artistId,
+            Pageable pageable
+    );
 
-    Page<AlbumReview> findReviewsByUser_IdAndAlbum_SpotifyAlbumIdOrderByListenedAtDesc(Long userId, String spotifyAlbumId, Pageable pageable);
-
-    Page<AlbumReview> findReviewsByUser_IdAndAlbum_Artist_SpotifyArtistIdOrderByListenedAtDesc(Long userId, String spotifyAlbumId, Pageable pageable);
-
-    Page<AlbumReview> findReviewsByUser_IdAndAlbum_Artist_SpotifyArtistIdAndAlbum_SpotifyAlbumIdOrderByListenedAtDesc(
+    Page<AlbumReview> findByAlbumListen_User_IdAndAlbumListen_Album_Artist_SpotifyArtistIdAndAlbumListen_Album_SpotifyAlbumIdOrderByAlbumListen_ListenedAtDesc(
             Long userId,
             String artistId,
             String albumId,
             Pageable pageable
     );
 
-    @Query("SELECT r FROM AlbumReview r WHERE r.user.id = :userId ORDER BY r.listenedAt DESC NULLS LAST")
-    Page<AlbumReview> findReviewsByUser_IdOrderByListenedAtDesc(
-            @Param("userId") Long userId, Pageable pageable
+    Page<AlbumReview> findByAlbumListen_User_IdOrderByAlbumListen_ListenedAtDesc(
+            Long userId,
+            Pageable pageable
     );
 }

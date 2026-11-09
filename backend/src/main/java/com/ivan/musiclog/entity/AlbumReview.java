@@ -1,36 +1,26 @@
-
 package com.ivan.musiclog.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@NoArgsConstructor
 @Entity
 @Table(name = "album_reviews")
+@Getter
+@Setter
 public class AlbumReview {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    @ManyToOne
-    @JoinColumn(name = "album_id", nullable = false)
-    private Album album;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "album_listen_id", nullable = false)
+    private AlbumListen albumListen;
 
     @Column(nullable = false)
-    private boolean listened = false;
-
-    @Column
     private Integer rating;
 
     @Column(columnDefinition = "TEXT")
@@ -52,7 +42,4 @@ public class AlbumReview {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-
-    @Column
-    private LocalDateTime listenedAt;
 }

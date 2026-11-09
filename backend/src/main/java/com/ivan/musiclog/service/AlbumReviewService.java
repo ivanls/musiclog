@@ -1,16 +1,11 @@
 package com.ivan.musiclog.service;
 
 import com.ivan.musiclog.dto.*;
-import com.ivan.musiclog.entity.Album;
-import com.ivan.musiclog.entity.AlbumReview;
-import com.ivan.musiclog.entity.Artist;
-import com.ivan.musiclog.entity.User;
+import com.ivan.musiclog.entity.*;
 import com.ivan.musiclog.exception.AccessDeniedException;
 import com.ivan.musiclog.exception.AlbumReviewNotFoundException;
-import com.ivan.musiclog.repository.AlbumRepository;
-import com.ivan.musiclog.repository.AlbumReviewRepository;
-import com.ivan.musiclog.repository.ArtistRepository;
-import com.ivan.musiclog.repository.UserRepository;
+import com.ivan.musiclog.repository.*;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -25,27 +20,19 @@ import java.util.Optional;
 
 @Service
 public class AlbumReviewService {
-
     private final AlbumReviewRepository albumReviewRepository;
     private final UserRepository userRepository;
-    private final AlbumRepository albumRepository;
-    private final ArtistRepository artistRepository;
-    private final SpotifyService spotifyService;
+    private final AlbumListenRepository albumListenRepository;
+    private final AlbumService albumService;
 
-    public AlbumReviewService(
-            AlbumReviewRepository albumReviewRepository,
-            UserRepository userRepository,
-            AlbumRepository albumRepository,
-            ArtistRepository artistRepository,
-            SpotifyService spotifyService
-    ) {
+    public AlbumReviewService(AlbumReviewRepository albumReviewRepository, UserRepository userRepository, AlbumListenRepository albumListenRepository, AlbumService albumService) {
         this.albumReviewRepository = albumReviewRepository;
         this.userRepository = userRepository;
-        this.albumRepository = albumRepository;
-        this.spotifyService = spotifyService;
-        this.artistRepository = artistRepository;
+        this.albumListenRepository = albumListenRepository;
+        this.albumService = albumService;
     }
 
+    @Transactional
     public AlbumReviewResponse createAlbumReview(CreateAlbumReviewRequest request) {
         validateReview(request.getRating(), request.getReviewText());
 
@@ -58,70 +45,73 @@ public class AlbumReviewService {
                         new UsernameNotFoundException("User not found"));
 
         String albumId = request.getSpotifyAlbumId();
+        Album album = albumService.findOrCreateAlbum(albumId);
 
-        Album album = findOrCreateAlbum(albumId);
+        AlbumListen listen = albumListenRepository
+                .findByUser_IdAndAlbum_SpotifyAlbumId(user.getId(), albumId)
+                .orElse(null);
 
-        AlbumReview entry = new AlbumReview();
-        entry.setUser(user);
-        entry.setAlbum(album);
-        entry.setListened(request.isListened());
-        entry.setRating(request.getRating());
-        entry.setReviewText(request.getReviewText());
-        entry.setListenedAt(
-                request.getListenedAt() == null ? LocalDateTime.now() : request.getListenedAt()
-        );
+        if (listen == null) {
+            AlbumListen newListen = new AlbumListen();
+            newListen.setUser(user);
+            newListen.setAlbum(album);
+            newListen.setListened(true);
+            newListen.setListenedAt(LocalDateTime.now());
 
-        AlbumReview savedEntry = albumReviewRepository.save(entry);
+            listen = albumListenRepository.save(newListen);
+        } else {
+            if (!listen.isListened()) {
+                listen.setListened(true);
+                listen = albumListenRepository.save(listen);
+            }
+        }
 
-        return toResponse(savedEntry);
+        AlbumReview review = new AlbumReview();
+        review.setAlbumListen(listen);
+        review.setRating(request.getRating());
+        review.setReviewText(request.getReviewText());
+
+        AlbumReview savedReview = albumReviewRepository.save(review);
+        return toResponse(savedReview);
     }
 
     public AlbumReviewResponse updateAlbumReview(
             Long reviewId,
             UpdateAlbumReviewRequest request
     ) {
-
+        //Search user
         String contextName = SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getName();
-
         User user = userRepository.findByUsername(contextName)
                 .orElseThrow(() ->
                         new UsernameNotFoundException("User not found"));
-
+        //Search review
         AlbumReview review = albumReviewRepository.findById(reviewId)
                 .orElseThrow(() ->
                         new AlbumReviewNotFoundException("Review not found"));
-
-        if (!review.getUser().getId().equals(user.getId())) {
+        //The user is the owner?
+        if (!review.getAlbumListen().getUser().getId().equals(user.getId())) {
             throw new AccessDeniedException(
                     "No puedes editar esta entrada");
         }
-
+        //Calculate final data
         Integer finalRating = (request.getRating() == null
-                ? review.getRating()
-                : request.getRating());
+                ? review.getRating() : request.getRating());
         String finalReviewText = (request.getReviewText() == null
-                ? review.getReviewText()
-                : request.getReviewText());
-
+                ? review.getReviewText() : request.getReviewText());
+        //Validate data
         validateReview(finalRating, finalReviewText);
-
-        if (request.getListened() != null) {
-            review.setListened(request.getListened());
-        }
+        //Update rating and reviewText
         if (request.getRating() != null) {
             review.setRating(request.getRating());
         }
         if (request.getReviewText() != null) {
             review.setReviewText(request.getReviewText());
         }
-        if (request.getListenedAt() != null) {
-            review.setListenedAt(request.getListenedAt());
-        }
-
+        //Save review
         AlbumReview updatedReview = albumReviewRepository.save(review);
-
+        //Return response
         return toResponse(updatedReview);
     }
 
@@ -134,7 +124,7 @@ public class AlbumReviewService {
     }
 
     public List<AlbumReviewResponse> findBySpotifyAlbumId(String spotifyAlbumId) {
-        return albumReviewRepository.findByAlbum_SpotifyAlbumId(spotifyAlbumId)
+        return albumReviewRepository.findByAlbumListen_Album_SpotifyAlbumId(spotifyAlbumId)
                 .stream()
                 .map(this::toResponse)
                 .toList();
@@ -151,20 +141,33 @@ public class AlbumReviewService {
 
         if (albumId != null && !albumId.isBlank()
                 && artistId != null && !artistId.isBlank()) {
-            return albumReviewRepository.findReviewsByUser_IdAndAlbum_Artist_SpotifyArtistIdAndAlbum_SpotifyAlbumIdOrderByListenedAtDesc(user.getId(), artistId, albumId, pageable)
+
+            return albumReviewRepository
+                    .findByAlbumListen_User_IdAndAlbumListen_Album_Artist_SpotifyArtistIdAndAlbumListen_Album_SpotifyAlbumIdOrderByAlbumListen_ListenedAtDesc(
+                            user.getId(), artistId, albumId, pageable)
                     .map(this::toResponse);
+
         } else if (albumId != null && !albumId.isBlank()) {
-            return albumReviewRepository.findReviewsByUser_IdAndAlbum_SpotifyAlbumIdOrderByListenedAtDesc(user.getId(), albumId, pageable)
+
+            return albumReviewRepository
+                    .findByAlbumListen_User_IdAndAlbumListen_Album_SpotifyAlbumIdOrderByAlbumListen_ListenedAtDesc(
+                            user.getId(), albumId, pageable)
                     .map(this::toResponse);
+
         } else if (artistId != null && !artistId.isBlank()) {
-            return albumReviewRepository.findReviewsByUser_IdAndAlbum_Artist_SpotifyArtistIdOrderByListenedAtDesc(user.getId(), artistId, pageable)
+
+            return albumReviewRepository
+                    .findByAlbumListen_User_IdAndAlbumListen_Album_Artist_SpotifyArtistIdOrderByAlbumListen_ListenedAtDesc(
+                            user.getId(), artistId, pageable)
                     .map(this::toResponse);
+
         } else {
-            return albumReviewRepository.findReviewsByUser_IdOrderByListenedAtDesc(user.getId(), pageable)
+
+            return albumReviewRepository
+                    .findByAlbumListen_User_IdOrderByAlbumListen_ListenedAtDesc(
+                            user.getId(), pageable)
                     .map(this::toResponse);
         }
-
-
     }
 
     public void deleteAlbumReview(Long reviewId) {
@@ -180,7 +183,7 @@ public class AlbumReviewService {
                 .orElseThrow(() ->
                         new AlbumReviewNotFoundException("Review not found"));
 
-        if (!review.getUser().getId().equals(user.getId())) {
+        if (!review.getAlbumListen().getUser().getId().equals(user.getId())) {
             throw new AccessDeniedException("Access denied");
         }
 
@@ -188,13 +191,14 @@ public class AlbumReviewService {
     }
 
     private void validateReview(Integer rating, String reviewText) {
-        if (reviewText != null && !reviewText.isBlank() && rating == null) {
+        if (rating == null) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "No puedes publicar una reseña sin una puntuación"
             );
         }
-        if (rating != null && (rating < 0 || rating > 10)) {
+
+        if (rating < 0 || rating > 10) {
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST,
                     "La puntuación debe estar entre 0 y 10"
@@ -203,67 +207,20 @@ public class AlbumReviewService {
     }
 
     private AlbumReviewResponse toResponse(AlbumReview review) {
-        Album album = review.getAlbum();
+        AlbumListen listen = review.getAlbumListen();
+
+        Album album = listen.getAlbum();
 
         return new AlbumReviewResponse(
                 review.getId(),
-                review.getUser().getUsername(),
+                listen.getUser().getUsername(),
                 album.getSpotifyAlbumId(),
-                review.isListened(),
+                listen.isListened(),
                 review.getRating(),
                 review.getReviewText(),
                 review.getCreatedAt(),
                 review.getUpdatedAt(),
-                review.getListenedAt()
+                listen.getListenedAt()
         );
-    }
-
-    private Album findOrCreateAlbum(String spotifyAlbumId) {
-        Optional<Album> albumOptional =
-                albumRepository.findBySpotifyAlbumId(spotifyAlbumId);
-
-        if (albumOptional.isPresent()) {
-            return albumOptional.get();
-        }
-
-        // Si el album no está guardado, petición a Spoti
-        SpotifyAlbumResponse spotifyResponse =
-                spotifyService.getAlbumById(spotifyAlbumId);
-
-        // Buscar si está guardado el artista
-        Optional<Artist> artistOptional =
-                artistRepository.findBySpotifyArtistId(
-                        spotifyResponse.getArtistId()
-                );
-
-        Artist artist;
-
-        if (artistOptional.isPresent()) {
-            // Reutilizamos el artista existente
-            artist = artistOptional.get();
-        } else {
-            // El artista tampoco existe: lo obtenemos de Spotify
-            SpotifyArtistResponse artistResponse =
-                    spotifyService.getArtistById(
-                            spotifyResponse.getArtistId()
-                    );
-
-            artist = new Artist();
-            artist.setSpotifyArtistId(artistResponse.getId());
-            artist.setName(artistResponse.getName());
-            artist.setImageUrl(artistResponse.getImageUrl());
-
-            artist = artistRepository.save(artist);
-        }
-
-        // Creamos y guardamos el álbum asociado al artista
-        Album album = new Album();
-        album.setSpotifyAlbumId(spotifyResponse.getId());
-        album.setName(spotifyResponse.getName());
-        album.setImageUrl(spotifyResponse.getImageUrl());
-        album.setSpotifyUrl(spotifyResponse.getSpotifyUrl());
-        album.setArtist(artist);
-
-        return albumRepository.save(album);
     }
 }
