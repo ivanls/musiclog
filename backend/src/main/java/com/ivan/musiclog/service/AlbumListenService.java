@@ -14,23 +14,19 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AlbumListenService {
     private final AlbumListenRepository albumListenRepository;
-    private  final AlbumRepository albumRepository;
     private final UserRepository userRepository;
-    private final SpotifyService spotifyService;
-    private final AlbumReviewService albumReviewService;
     private final AlbumService albumService;
 
-    public AlbumListenService(AlbumListenRepository albumListenRepository, AlbumRepository albumRepository, UserRepository userRepository, SpotifyService spotifyService, AlbumReviewService albumReviewService, AlbumService albumService) {
+    public AlbumListenService(AlbumListenRepository albumListenRepository, UserRepository userRepository, AlbumService albumService) {
         this.albumListenRepository = albumListenRepository;
-        this.albumRepository = albumRepository;
         this.userRepository = userRepository;
-        this.spotifyService = spotifyService;
-        this.albumReviewService = albumReviewService;
         this.albumService = albumService;
     }
 
@@ -49,9 +45,9 @@ public class AlbumListenService {
         Optional<AlbumListen> albumListen = albumListenRepository.findByUser_IdAndAlbum_SpotifyAlbumId(user.getId(), spotifyAlbumId);
 
         AlbumListen listen;
-        if(albumListen.isPresent()){
+        if (albumListen.isPresent()) {
             listen = albumListen.get();
-        }else{
+        } else {
             listen = new AlbumListen();
             listen.setUser(user);
             listen.setAlbum(album);
@@ -64,7 +60,7 @@ public class AlbumListenService {
         return toResponse(savedListen);
     }
 
-    public AlbumListenResponse unlisten(String spotifyAlbumId){
+    public AlbumListenResponse unlisten(String spotifyAlbumId) {
 
         String contextName = SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -77,7 +73,7 @@ public class AlbumListenService {
         Optional<AlbumListen> albumListen = albumListenRepository.findByUser_IdAndAlbum_SpotifyAlbumId(user.getId(), spotifyAlbumId);
 
         AlbumListen listen;
-        if (albumListen.isPresent()){
+        if (albumListen.isPresent()) {
             listen = albumListen.get();
             listen.setListened(false);
         } else {
@@ -89,15 +85,42 @@ public class AlbumListenService {
         return toResponse(savedListen);
     }
 
-    /*/
-    getMyListens()
-     */
 
-    /*/
-    getListenBySpotifyAlbumId(String spotifyAlbumId)
-     */
+    public List<AlbumListenResponse> getMyListens() {
+        String contextName = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
 
-    private AlbumListenResponse toResponse(AlbumListen albumListen){
+        User user = userRepository.findByUsername(contextName)
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("User not found"));
+
+        List<AlbumListen> albumListenList = albumListenRepository.findByUser_IdAndListened(user.getId(), true);
+        List<AlbumListenResponse> responseList = albumListenList.stream()
+                .map(this::toResponse)
+                .toList();
+
+        return responseList;
+    }
+
+
+    public AlbumListenResponse getListenBySpotifyAlbumId(String spotifyAlbumId) {
+        String contextName = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
+
+        User user = userRepository.findByUsername(contextName)
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("User not found"));
+
+        AlbumListen albumListen = albumListenRepository.findByUser_IdAndAlbum_SpotifyAlbumId(user.getId(), spotifyAlbumId)
+                .orElseThrow(() ->
+                        new AlbumListenNotFoundException("Album Listen not found"));
+
+        return toResponse(albumListen);
+    }
+
+    private AlbumListenResponse toResponse(AlbumListen albumListen) {
         AlbumListenResponse response = new AlbumListenResponse(
                 albumListen.getId(),
                 albumListen.getAlbum().getSpotifyAlbumId(),

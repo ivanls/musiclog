@@ -4,6 +4,8 @@ import com.ivan.musiclog.dto.AlbumListenResponse;
 import com.ivan.musiclog.service.AlbumListenService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/album-listens")
 public class AlbumListenController {
@@ -25,15 +27,15 @@ public class AlbumListenController {
         return albumListenService.unlisten(spotifyAlbumId);
     }
 
-    @GetMapping()
-    public AlbumListenResponse getMyListens(){
-
+    @GetMapping("/me")
+    public List<AlbumListenResponse> getMyListens(){
+        return albumListenService.getMyListens();
     }
 
     @GetMapping("/{spotifyAlbumId}")
     public AlbumListenResponse getListenBySpotifyAlbumId(
             @PathVariable String spotifyAlbumId){
-        return  getListenBySpotifyAlbumId(spotifyAlbumId);
+        return albumListenService.getListenBySpotifyAlbumId(spotifyAlbumId);
     }
 
 
